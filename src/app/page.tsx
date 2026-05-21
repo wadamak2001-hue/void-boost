@@ -70,45 +70,28 @@ export const DICTIONARY = {
 }
 
 export default function Home() {
-  const [showSplash, setShowSplash] = useState(true)
   const [lang, setLang] = useState<Language>('en')
   const [hasPermission, setHasPermission] = useState(false)
+  const [isReady, setIsReady] = useState(false)
 
   useEffect(() => {
-    const timer = setTimeout(() => setShowSplash(false), 2500)
-    return () => clearTimeout(timer)
+    // Instant ready state to bypass initial hydration flicker
+    setIsReady(true)
   }, [])
 
   const t = DICTIONARY[lang]
 
-  if (showSplash) {
-    return (
-      <div className="fixed inset-0 bg-background flex flex-col items-center justify-center z-[100]" suppressHydrationWarning>
-        <div className="relative">
-          <div className="absolute inset-0 bg-primary/20 blur-[100px] rounded-full scale-150 animate-pulse"></div>
-          <div className="relative animate-bounce">
-            <Shield className="w-24 h-24 text-primary fill-primary/10 drop-shadow-[0_0_15px_rgba(0,191,255,0.6)]" />
-          </div>
-        </div>
-        <h1 className="mt-8 font-headline text-4xl font-black tracking-tighter neon-text animate-pulse" translate="no">
-          <span className="text-foreground">VOID</span> <span className="text-primary">BOOST</span>
-        </h1>
-        <p className="mt-2 text-muted-foreground font-headline tracking-[0.3em] text-[10px] uppercase opacity-60">
-          <span>Hyper-Optimized Gaming</span>
-        </p>
-      </div>
-    )
-  }
+  if (!isReady) return null;
 
   return (
     <div 
-      className={`min-h-screen max-w-md mx-auto bg-[#0A0C12] relative flex flex-col overflow-hidden pb-12 ${lang === 'ar' ? 'rtl font-headline' : 'ltr font-body'}`} 
+      className={`min-h-screen max-w-md mx-auto bg-[#0A0C12] relative flex flex-col overflow-hidden pb-12 pointer-events-auto ${lang === 'ar' ? 'rtl font-headline' : 'ltr font-body'}`} 
       dir={lang === 'ar' ? 'rtl' : 'ltr'}
       suppressHydrationWarning
     >
       <div className="absolute top-[-10%] right-[-20%] w-[100%] h-[50%] bg-primary/5 blur-[120px] rounded-full -z-10"></div>
       
-      <header className="p-6 flex items-center justify-between">
+      <header className="p-6 flex items-center justify-between pointer-events-auto relative z-50">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl glass border-primary/20 flex items-center justify-center">
             <Shield className="w-6 h-6 text-primary" />
@@ -132,25 +115,25 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="flex-1 p-6 space-y-8 overflow-y-auto custom-scrollbar">
-        <section className="animate-in fade-in slide-in-from-top-4 duration-700">
+      <main className="flex-1 p-6 space-y-8 overflow-y-auto custom-scrollbar pointer-events-auto relative z-10">
+        <section className="animate-in fade-in slide-in-from-top-2 duration-300">
           <DeviceMonitor hasPermission={hasPermission} labels={t} />
         </section>
 
-        <section className="animate-in fade-in zoom-in duration-700 delay-100">
+        <section className="animate-in fade-in zoom-in duration-300">
           <BoostButton labels={t} />
         </section>
 
-        <section className="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
+        <section className="animate-in fade-in slide-in-from-bottom-2 duration-300">
           <AIAdvisor labels={t} hasPermission={hasPermission} />
         </section>
 
-        <section className="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
+        <section className="animate-in fade-in slide-in-from-bottom-2 duration-300">
           <GameLauncher labels={t} />
         </section>
       </main>
 
-      <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-[340px] glass h-16 rounded-3xl flex items-center justify-around px-4 border-white/5 z-40">
+      <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-[340px] glass h-16 rounded-3xl flex items-center justify-around px-4 border-white/5 z-40 pointer-events-auto">
         <button className="p-2 rounded-xl text-primary bg-primary/10">
           <Shield className="w-6 h-6" />
         </button>

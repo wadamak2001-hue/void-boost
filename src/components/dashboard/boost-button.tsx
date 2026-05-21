@@ -25,7 +25,7 @@ export function BoostButton({ labels }: BoostButtonProps) {
       
       try {
         sessionStorage.clear()
-        localStorage.removeItem('void_temp_cache')
+        localStorage.clear()
       } catch (e) {
         // Silent error
       }
@@ -38,13 +38,13 @@ export function BoostButton({ labels }: BoostButtonProps) {
         description: labels.optimizedDesc,
         className: "bg-primary text-primary-foreground border-none font-headline font-bold",
       })
-    }, 2000)
+    }, 800) // Reduced delay for more responsive feel
   }
 
   return (
-    <div className="relative flex items-center justify-center py-8">
+    <div className="relative flex items-center justify-center py-4 pointer-events-auto">
       <div className={cn(
-        "absolute w-64 h-64 bg-primary/20 rounded-full blur-[60px] transition-all duration-1000",
+        "absolute w-64 h-64 bg-primary/20 rounded-full blur-[60px] transition-all duration-300",
         isBoosting ? "scale-150 opacity-100" : "scale-100 opacity-60"
       )}></div>
       
@@ -52,24 +52,24 @@ export function BoostButton({ labels }: BoostButtonProps) {
         onClick={handleBoost}
         disabled={isBoosting}
         className={cn(
-          "relative w-48 h-48 rounded-full border-4 border-primary transition-all duration-500 flex flex-col items-center justify-center gap-2",
-          "hover:scale-105 active:scale-95",
+          "relative w-44 h-44 rounded-full border-4 border-primary transition-all duration-200 flex flex-col items-center justify-center gap-2",
+          "hover:scale-105 active:scale-95 pointer-events-auto",
           "bg-background/80 backdrop-blur-md shadow-[0_0_30px_rgba(0,191,255,0.3)]",
-          isBoosting ? "animate-pulse-glow border-primary scale-110" : "border-primary/50 animate-float"
+          isBoosting ? "animate-pulse border-primary scale-110" : "border-primary/50 animate-float"
         )}
       >
         <div className={cn(
-          "transition-transform duration-500",
+          "transition-transform duration-300",
           isBoosting ? "scale-150 rotate-12" : "scale-100"
         )}>
           <Zap className={cn(
-            "w-12 h-12",
+            "w-10 h-10",
             isBoosting ? "text-primary fill-primary" : "text-primary/70"
           )} />
         </div>
         
         <span className={cn(
-          "font-headline text-2xl font-black tracking-tighter transition-all",
+          "font-headline text-xl font-black tracking-tighter transition-all",
           isBoosting ? "opacity-0 translate-y-2" : "opacity-100 translate-y-0"
         )}>
           {isBoosting ? labels.purging : labels.boost}
