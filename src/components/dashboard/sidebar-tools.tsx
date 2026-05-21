@@ -1,16 +1,15 @@
 
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { 
   Sun, BellOff, Camera, Video, 
   Globe, ShieldCheck, Bug,
   ChevronLeft, Cloud, Terminal,
-  LayoutGrid
+  Settings
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Switch } from "@/components/ui/switch"
-import { Input } from "@/components/ui/input"
 import { type Language } from "@/app/page"
 import { logger } from "@/hooks/use-debug-logs"
 import { toast } from "@/hooks/use-toast"
@@ -25,26 +24,6 @@ interface SidebarToolsProps {
 
 export function SidebarTools({ lang, setLang, hasPermission, setHasPermission, labels }: SidebarToolsProps) {
   const [isOpen, setIsOpen] = useState(false)
-  const [adAppId, setAdAppId] = useState("")
-  const [adUnitId, setAdUnitId] = useState("")
-
-  useEffect(() => {
-    const savedId = localStorage.getItem('void_boost_ad_app_id') || ""
-    const savedUnit = localStorage.getItem('void_boost_ad_unit_id') || ""
-    setAdAppId(savedId)
-    setAdUnitId(savedUnit)
-  }, [])
-
-  const saveAdConfig = () => {
-    localStorage.setItem('void_boost_ad_app_id', adAppId)
-    localStorage.setItem('void_boost_ad_unit_id', adUnitId)
-    logger.add('AdMob: Configuration Updated', 'success')
-    toast({
-      title: "CONFIG SAVED",
-      description: "AdMob IDs updated for next launch.",
-      className: "bg-primary text-background font-bold"
-    })
-  }
 
   const TOOLS = [
     { icon: <Sun className="w-5 h-5" />, label: labels.brightness },
@@ -69,6 +48,12 @@ export function SidebarTools({ lang, setLang, hasPermission, setHasPermission, l
       description: "App logs and state captured for analysis.",
       className: "bg-secondary text-white font-bold"
     })
+  }
+
+  const scrollToDeploy = () => {
+    setIsOpen(false)
+    const el = document.getElementById('cloud-deploy-section')
+    if (el) el.scrollIntoView({ behavior: 'smooth' })
   }
 
   return (
@@ -128,37 +113,15 @@ export function SidebarTools({ lang, setLang, hasPermission, setHasPermission, l
               />
             </div>
 
-            {/* AdMob Settings Section */}
-            <div className="p-4 rounded-xl glass border-white/5 space-y-4">
-              <div className="flex items-center gap-3 text-primary">
-                <LayoutGrid className="w-5 h-5" />
-                <span className="text-xs font-bold uppercase tracking-wider">{labels.adSettings}</span>
+            <button 
+              onClick={scrollToDeploy}
+              className="w-full flex items-center justify-between p-4 rounded-xl glass border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors group"
+            >
+              <div className="flex items-center gap-3">
+                <Settings className="w-5 h-5 text-primary" />
+                <span className="text-xs font-bold uppercase tracking-wider">Cloud & Ads Config</span>
               </div>
-              <div className="space-y-2">
-                <label className="text-[8px] font-black uppercase text-muted-foreground">{labels.adId}</label>
-                <Input 
-                  value={adAppId}
-                  onChange={(e) => setAdAppId(e.target.value)}
-                  placeholder="ca-app-pub-xxx"
-                  className="h-8 text-[10px] bg-white/5"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-[8px] font-black uppercase text-muted-foreground">{labels.unitId}</label>
-                <Input 
-                  value={adUnitId}
-                  onChange={(e) => setAdUnitId(e.target.value)}
-                  placeholder="ca-app-pub-xxx/yyy"
-                  className="h-8 text-[10px] bg-white/5"
-                />
-              </div>
-              <button 
-                onClick={saveAdConfig}
-                className="w-full py-2 bg-primary/20 text-primary border border-primary/30 rounded-lg text-[9px] font-black uppercase hover:bg-primary/30 transition-all"
-              >
-                Save Ad Config
-              </button>
-            </div>
+            </button>
 
             <button 
               onClick={handleReportBug}
