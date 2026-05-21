@@ -12,7 +12,7 @@ import { Toaster } from "@/components/ui/toaster"
 
 export type Language = 'en' | 'ar';
 
-const DICTIONARY = {
+export const DICTIONARY = {
   en: {
     brand: "VOID BOOST",
     status: "SYSTEM ONLINE",
@@ -32,7 +32,13 @@ const DICTIONARY = {
     sysAccess: "System Access",
     lang: "Language",
     optimized: "SYSTEM OPTIMIZED",
-    optimizedDesc: "Idle threads suspended. Memory cleared."
+    optimizedDesc: "Idle threads suspended. Memory cleared.",
+    permRequired: "Permission Required",
+    permDesc: "Enable System Access in settings to view live telemetry.",
+    brightness: "Brightness",
+    dnd: "DND Mode",
+    screenshot: "Screenshot",
+    record: "Screen Record"
   },
   ar: {
     brand: "فويد بوست",
@@ -53,7 +59,13 @@ const DICTIONARY = {
     sysAccess: "الوصول للنظام",
     lang: "اللغة",
     optimized: "تم تحسين النظام",
-    optimizedDesc: "تم تعليق العمليات الخاملة. تم مسح الذاكرة."
+    optimizedDesc: "تم تعليق العمليات الخاملة. تم مسح الذاكرة.",
+    permRequired: "الأذونات مطلوبة",
+    permDesc: "قم بتفعيل الوصول للنظام من الإعدادات لعرض البيانات الحية.",
+    brightness: "السطوع",
+    dnd: "وضع الهدوء",
+    screenshot: "لقطة شاشة",
+    record: "تسجيل الشاشة"
   }
 }
 
@@ -90,7 +102,7 @@ export default function Home() {
 
   return (
     <div 
-      className={`min-h-screen max-w-md mx-auto bg-[#0A0C12] relative flex flex-col overflow-hidden pb-12 ${lang === 'ar' ? 'rtl' : 'ltr'}`} 
+      className={`min-h-screen max-w-md mx-auto bg-[#0A0C12] relative flex flex-col overflow-hidden pb-12 ${lang === 'ar' ? 'rtl font-headline' : 'ltr font-body'}`} 
       dir={lang === 'ar' ? 'rtl' : 'ltr'}
       suppressHydrationWarning
     >
