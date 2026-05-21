@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from "react"
@@ -94,7 +93,6 @@ export default function Home() {
   const [debugVisible, setDebugVisible] = useState(false)
   const [logoTaps, setLogoTaps] = useState(0)
 
-  // Initialize from LocalStorage for persistence
   useEffect(() => {
     const savedLang = localStorage.getItem('void_boost_lang') as Language
     const savedPerm = localStorage.getItem('void_boost_perm') === 'true'
@@ -152,7 +150,7 @@ export default function Home() {
           </div>
           <div>
             <h1 className="font-headline font-black text-xl leading-none" translate="no">
-              <span className="text-foreground">{t.brand}</span>
+              <span className="text-foreground">VOID BOOST</span>
             </h1>
             <p className="text-[10px] text-primary font-bold tracking-widest">
               <span>{t.status}</span>

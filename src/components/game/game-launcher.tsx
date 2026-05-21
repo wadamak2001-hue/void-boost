@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from "react"
@@ -100,14 +99,11 @@ export function GameLauncher({ labels }: GameLauncherProps) {
   const handleLaunch = (packageName: string, name: string) => {
     logger.add(`Intent Dispatch: Attempting to open ${name}...`, 'info')
     
-    // Standard Android Intent for launching a specific package via main activity
     const intentUrl = `intent:#Intent;package=${packageName};action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;end`
     
     if (typeof window !== "undefined") {
       try {
         window.location.href = intentUrl
-        
-        // Log the dispatch success. Note: Browser cannot verify if the app actually opened.
         setTimeout(() => {
           logger.add(`Status: Intent successfully sent for ${packageName}`, 'success')
         }, 1000)
