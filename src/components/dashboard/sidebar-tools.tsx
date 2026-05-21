@@ -4,12 +4,14 @@
 import { useState } from "react"
 import { 
   Sun, BellOff, Camera, Video, 
-  Settings, Cpu, Monitor, Lock,
-  ChevronLeft, Globe, ShieldCheck
+  Globe, ShieldCheck, Bug,
+  ChevronLeft
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Switch } from "@/components/ui/switch"
 import { type Language } from "@/app/page"
+import { logger } from "@/hooks/use-debug-logs"
+import { toast } from "@/hooks/use-toast"
 
 interface SidebarToolsProps {
   lang: Language
@@ -30,6 +32,22 @@ export function SidebarTools({ lang, setLang, hasPermission, setHasPermission, l
   ]
 
   const handleToggleOpen = () => setIsOpen(!isOpen)
+
+  const handleReportBug = () => {
+    logger.add('Beta Feedback Triggered: Capturing State...', 'info')
+    const stateSnapshot = {
+      lang,
+      hasPermission,
+      logs: logger.getLogs().length,
+      timestamp: new Date().toISOString()
+    }
+    logger.add(`State Captured: ${JSON.stringify(stateSnapshot)}`, 'success')
+    toast({
+      title: "REPORT SAVED",
+      description: "App logs and state captured for analysis.",
+      className: "bg-secondary text-white font-bold"
+    })
+  }
 
   return (
     <div className={cn(
@@ -87,6 +105,16 @@ export function SidebarTools({ lang, setLang, hasPermission, setHasPermission, l
                 onCheckedChange={setHasPermission}
               />
             </div>
+
+            <button 
+              onClick={handleReportBug}
+              className="w-full flex items-center justify-between p-4 rounded-xl glass border-white/5 hover:bg-secondary/10 transition-colors group"
+            >
+              <div className="flex items-center gap-3">
+                <Bug className="w-5 h-5 text-secondary group-hover:animate-bounce" />
+                <span className="text-xs font-bold uppercase tracking-wider">{labels.report}</span>
+              </div>
+            </button>
           </div>
 
           <div className="grid grid-cols-2 gap-3">

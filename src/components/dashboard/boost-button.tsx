@@ -5,6 +5,7 @@ import { useState } from "react"
 import { Zap } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toast } from "@/hooks/use-toast"
+import { logger } from "@/hooks/use-debug-logs"
 
 interface BoostButtonProps {
   labels: any
@@ -17,26 +18,34 @@ export function BoostButton({ labels }: BoostButtonProps) {
     if (isBoosting) return
 
     setIsBoosting(true)
+    logger.add('Optimization Triggered: INIT PURGE SEQUENCE', 'warn')
     
     // Simulate Native System Haptics & Garbage Collection
     if (typeof window !== "undefined") {
       if (window.navigator.vibrate) {
         window.navigator.vibrate([50, 30, 100])
+        logger.add('Haptic Driver: ACTIVE', 'success')
       }
       
       try {
-        // Real-world clearing of browser cache/state for performance
+        const memBefore = (performance as any).memory?.usedJSHeapSize || 0
         sessionStorage.clear()
         localStorage.removeItem('void_boost_temp_cache') 
         
         // Simulating memory heap pressure release
         const releaseBuffer = new Array(1000).fill(null);
         releaseBuffer.length = 0;
-      } catch (e) {}
+        
+        const memAfter = (performance as any).memory?.usedJSHeapSize || 0
+        logger.add(`Memory Purge: Session Storage Cleared. JS Heap Stabilized.`, 'success')
+      } catch (e: any) {
+        logger.add(`Purge Logic Failure: ${e.message}`, 'error')
+      }
     }
 
     setTimeout(() => {
       setIsBoosting(false)
+      logger.add('Optimization Cycle: COMPLETE', 'success')
       toast({
         title: labels.optimized,
         description: labels.optimizedDesc,

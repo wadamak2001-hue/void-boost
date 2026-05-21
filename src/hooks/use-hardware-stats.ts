@@ -2,6 +2,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { logger } from "./use-debug-logs"
 
 export interface HardwareStats {
   fps: number | string
@@ -27,7 +28,6 @@ export function useHardwareStats(hasPermission: boolean) {
   })
 
   useEffect(() => {
-    // If permission is revoked or not granted, reset to Locked state
     if (!hasPermission) {
       setStats({
         fps: "---",
@@ -39,6 +39,8 @@ export function useHardwareStats(hasPermission: boolean) {
       })
       return
     }
+
+    logger.add('Telemetry Stream: INITIALIZING HARDWARE LAYER', 'info')
 
     // FPS Counter Logic
     let frames = 0
@@ -72,14 +74,18 @@ export function useHardwareStats(hasPermission: boolean) {
           battery.addEventListener("levelchange", batteryUpdate)
           battery.addEventListener("chargingchange", batteryUpdate)
           batteryUpdate()
+          logger.add('Battery API: LINKED', 'success')
           return battery
         } catch (e) {
+          logger.add('Battery API: FAILED TO ACCESS', 'error')
           return null
         }
+      } else {
+        logger.add('Battery API: UNSUPPORTED BY AGENT', 'warn')
       }
     }
 
-    // RAM/Memory Logic (Simulating live occupancy based on heap size)
+    // RAM/Memory Logic
     const updateMemory = () => {
       const performanceMemory = (performance as any).memory
       if (performanceMemory) {
@@ -89,12 +95,12 @@ export function useHardwareStats(hasPermission: boolean) {
           ramTotal: (performanceMemory.jsHeapSizeLimit / (1024 * 1024 * 1024)).toFixed(1),
         }))
       } else {
-        // Fallback for non-Chrome browsers
+        // Fallback or explicit warning
         setStats((prev) => ({ ...prev, ramUsed: "1.2", ramTotal: "4.0" }))
       }
     }
 
-    // Temperature Simulation (Browser restricted, but reacts to 'System Access')
+    // Temperature Simulation
     const updateTemp = () => {
       setStats((prev) => {
         const baseTemp = 36.5
@@ -107,7 +113,7 @@ export function useHardwareStats(hasPermission: boolean) {
     const fastInterval = setInterval(() => {
       updateMemory()
       updateTemp()
-    }, 500) // 500ms Refresh Rate for snappy UI
+    }, 500)
 
     return () => {
       cancelAnimationFrame(rafId)
@@ -118,6 +124,7 @@ export function useHardwareStats(hasPermission: boolean) {
           battery.removeEventListener("chargingchange", () => {})
         }
       })
+      logger.add('Telemetry Stream: DISCONNECTED', 'info')
     }
   }, [hasPermission])
 

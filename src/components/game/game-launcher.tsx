@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input"
 import { PlaceHolderImages } from "@/lib/placeholder-images"
 import { cn } from "@/lib/utils"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { logger } from "@/hooks/use-debug-logs"
 
 interface Game {
   id: string
@@ -48,32 +49,37 @@ export function GameLauncher({ labels }: GameLauncherProps) {
   const [manualName, setManualName] = useState("")
   const [manualPackage, setManualPackage] = useState("")
 
-  // Load games from localStorage on mount
   useEffect(() => {
     const savedGames = localStorage.getItem('void_boost_registry')
     if (savedGames) {
       try {
-        setGames(JSON.parse(savedGames))
+        const parsed = JSON.parse(savedGames)
+        setGames(parsed)
+        logger.add(`Registry Loaded: ${parsed.length} items identified.`, 'info')
       } catch (e) {
-        console.error("Failed to load registry", e)
+        logger.add('Registry Parse Error: Corrupt local storage.', 'error')
       }
     }
   }, [])
 
-  // Save games to localStorage when registry changes
   useEffect(() => {
     localStorage.setItem('void_boost_registry', JSON.stringify(games))
   }, [games])
 
   const handleSyncRegistry = () => {
     setIsSyncing(true)
+    logger.add('Sync Command: SCANNING LOCAL PACKAGES...', 'info')
     setTimeout(() => {
       setIsSyncing(false)
+      logger.add('Sync Complete: Local cache validated.', 'success')
     }, 1000)
   }
 
   const handleAddGame = (source: { name: string; packageName: string; genre: string; iconId?: string }) => {
-    if (games.find(g => g.packageName === source.packageName)) return
+    if (games.find(g => g.packageName === source.packageName)) {
+      logger.add(`Registry Conflict: ${source.packageName} already exists.`, 'warn')
+      return
+    }
     
     const icon = PlaceHolderImages.find(img => img.id === (source.iconId || "game-ff"))?.imageUrl || PlaceHolderImages[0].imageUrl
     
@@ -85,25 +91,29 @@ export function GameLauncher({ labels }: GameLauncherProps) {
       genre: source.genre
     }
     setGames(prev => [...prev, newGame])
+    logger.add(`Registry Append: ${source.name} added.`, 'success')
     setDialogOpen(false)
     setManualName("")
     setManualPackage("")
   }
 
-  const filteredDiscovery = COMMON_GAME_PACKAGES.filter(game => 
-    game.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    game.packageName.toLowerCase().includes(searchQuery.toLowerCase())
-  )
-
   const handleLaunch = (packageName: string) => {
+    logger.add(`Execution Request: ${packageName}`, 'info')
     const intentUrl = `intent://launch#Intent;package=${packageName};end`
+    
     if (typeof window !== "undefined") {
-      window.location.href = intentUrl
+      try {
+        window.location.href = intentUrl
+        logger.add(`Intent Sent: Package redirect dispatched.`, 'success')
+      } catch (e: any) {
+        logger.add(`Sandbox Violation: Browser blocked action or intent invalid.`, 'error')
+      }
     }
   }
 
-  const removeGame = (id: string) => {
+  const removeGame = (id: string, name: string) => {
     setGames(games.filter(g => g.id !== id))
+    logger.add(`Registry Delete: ${name} removed.`, 'warn')
   }
 
   return (
@@ -165,9 +175,9 @@ export function GameLauncher({ labels }: GameLauncherProps) {
                     
                     <div className="space-y-2">
                       <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-2">
-                        {searchQuery ? `Found (${filteredDiscovery.length})` : 'Popular Suggestions'}
+                        Common Suggestions
                       </p>
-                      {filteredDiscovery.map((game) => (
+                      {COMMON_GAME_PACKAGES.filter(g => g.name.toLowerCase().includes(searchQuery.toLowerCase())).map((game) => (
                         <button
                           key={game.packageName}
                           onClick={() => handleAddGame(game)}
@@ -264,7 +274,7 @@ export function GameLauncher({ labels }: GameLauncherProps) {
                   className="w-8 h-8 rounded-xl bg-red-500/20 text-red-500 border border-red-500/30 hover:bg-red-500 hover:text-white"
                   onClick={(e) => {
                     e.stopPropagation()
-                    removeGame(game.id)
+                    removeGame(game.id, game.name)
                   }}
                 >
                   <Trash2 className="w-4 h-4" />

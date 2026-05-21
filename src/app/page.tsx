@@ -7,8 +7,10 @@ import { DeviceMonitor } from "@/components/dashboard/device-monitor"
 import { GameLauncher } from "@/components/game/game-launcher"
 import { AIAdvisor } from "@/components/dashboard/ai-advisor"
 import { SidebarTools } from "@/components/dashboard/sidebar-tools"
+import { DebugConsole } from "@/components/dashboard/debug-console"
 import { Shield, User, Cpu, Globe } from "lucide-react"
 import { Toaster } from "@/components/ui/toaster"
+import { logger } from "@/hooks/use-debug-logs"
 
 export type Language = 'en' | 'ar';
 
@@ -45,7 +47,8 @@ export const DICTIONARY = {
     launch: "LAUNCH",
     discovery: "System App Discovery",
     syncing: "SYNCING REGISTRY...",
-    refresh: "REFRESH LIST"
+    refresh: "REFRESH LIST",
+    report: "REPORT BUG"
   },
   ar: {
     brand: "فويد بوست",
@@ -79,7 +82,8 @@ export const DICTIONARY = {
     launch: "تشغيل",
     discovery: "اكتشاف تطبيقات النظام",
     syncing: "جاري مزامنة السجل...",
-    refresh: "تحديث القائمة"
+    refresh: "تحديث القائمة",
+    report: "إبلاغ عن خطأ"
   }
 }
 
@@ -87,6 +91,8 @@ export default function Home() {
   const [lang, setLang] = useState<Language>('en')
   const [hasPermission, setHasPermission] = useState(false)
   const [isReady, setIsReady] = useState(false)
+  const [debugVisible, setDebugVisible] = useState(false)
+  const [logoTaps, setLogoTaps] = useState(0)
 
   // Initialize from LocalStorage for persistence
   useEffect(() => {
@@ -96,7 +102,7 @@ export default function Home() {
     if (savedLang) setLang(savedLang)
     if (savedPerm) setHasPermission(savedPerm)
     
-    // Mark as ready after sync to prevent flickering
+    logger.add(`App Boot: Lang=${savedLang || 'en'}, Perm=${savedPerm}`, 'info')
     setIsReady(true)
   }, [])
 
@@ -104,16 +110,28 @@ export default function Home() {
     const newLang = lang === 'en' ? 'ar' : 'en'
     setLang(newLang)
     localStorage.setItem('void_boost_lang', newLang)
+    logger.add(`UI Direction Toggle: ${newLang.toUpperCase()}`, 'info')
   }
 
   const handlePermissionChange = (val: boolean) => {
     setHasPermission(val)
     localStorage.setItem('void_boost_perm', String(val))
+    logger.add(`System Access Update: ${val ? 'GRANTED' : 'REVOKED'}`, val ? 'success' : 'warn')
+  }
+
+  const handleLogoTap = () => {
+    const newCount = logoTaps + 1
+    if (newCount >= 5) {
+      setDebugVisible(true)
+      setLogoTaps(0)
+      logger.add('Developer Console Unlocked via Logo Sequence', 'success')
+    } else {
+      setLogoTaps(newCount)
+    }
   }
 
   const t = DICTIONARY[lang]
 
-  // Prevent flicker during sync
   if (!isReady) return <div className="min-h-screen bg-[#0A0C12]" />;
 
   return (
@@ -125,7 +143,10 @@ export default function Home() {
       <div className="absolute top-[-10%] right-[-20%] w-[100%] h-[50%] bg-primary/5 blur-[120px] rounded-full -z-10"></div>
       
       <header className="p-6 flex items-center justify-between relative z-50">
-        <div className="flex items-center gap-3">
+        <div 
+          className="flex items-center gap-3 cursor-pointer select-none active:scale-95 transition-transform"
+          onClick={handleLogoTap}
+        >
           <div className="w-10 h-10 rounded-xl glass border-primary/20 flex items-center justify-center">
             <Shield className="w-6 h-6 text-primary" />
           </div>
@@ -186,6 +207,9 @@ export default function Home() {
         setHasPermission={handlePermissionChange}
         labels={t}
       />
+
+      {debugVisible && <DebugConsole onClose={() => setDebugVisible(false)} />}
+      
       <Toaster />
     </div>
   )
