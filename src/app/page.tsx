@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from "react"
@@ -101,6 +102,7 @@ export default function Home() {
     if (savedPerm) setHasPermission(savedPerm)
     
     logger.add(`App Boot: Lang=${savedLang || 'en'}, Perm=${savedPerm}`, 'info')
+    logger.add('Capacitor Native Bridge: Initializing...', 'success')
     setIsReady(true)
   }, [])
 
@@ -149,9 +151,12 @@ export default function Home() {
             <Shield className="w-6 h-6 text-primary" />
           </div>
           <div>
-            <h1 className="font-headline font-black text-xl leading-none" translate="no">
-              <span className="text-foreground">VOID BOOST</span>
-            </h1>
+            <div className="flex items-center gap-2">
+              <h1 className="font-headline font-black text-xl leading-none" translate="no">
+                <span className="text-foreground">VOID BOOST</span>
+              </h1>
+              <span className="text-[8px] bg-primary/20 text-primary px-1.5 py-0.5 rounded border border-primary/30 font-black">NATIVE</span>
+            </div>
             <p className="text-[10px] text-primary font-bold tracking-widest">
               <span>{t.status}</span>
             </p>
