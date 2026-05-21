@@ -84,13 +84,32 @@ export const DICTIONARY = {
 }
 
 export default function Home() {
+  // Initialize from LocalStorage for persistence
   const [lang, setLang] = useState<Language>('en')
   const [hasPermission, setHasPermission] = useState(false)
   const [isReady, setIsReady] = useState(false)
 
   useEffect(() => {
+    // Load persisted states
+    const savedLang = localStorage.getItem('void_boost_lang') as Language
+    const savedPerm = localStorage.getItem('void_boost_perm') === 'true'
+    
+    if (savedLang) setLang(savedLang)
+    if (savedPerm) setHasPermission(savedPerm)
+    
     setIsReady(true)
   }, [])
+
+  const toggleLang = () => {
+    const newLang = lang === 'en' ? 'ar' : 'en'
+    setLang(newLang)
+    localStorage.setItem('void_boost_lang', newLang)
+  }
+
+  const handlePermissionChange = (val: boolean) => {
+    setHasPermission(val)
+    localStorage.setItem('void_boost_perm', String(val))
+  }
 
   const t = DICTIONARY[lang]
 
@@ -98,13 +117,13 @@ export default function Home() {
 
   return (
     <div 
-      className={`min-h-screen max-w-md mx-auto bg-[#0A0C12] relative flex flex-col overflow-hidden pb-12 pointer-events-auto transition-all duration-300 ${lang === 'ar' ? 'rtl font-headline' : 'ltr font-body'}`} 
+      className={`min-h-screen max-w-md mx-auto bg-[#0A0C12] relative flex flex-col overflow-hidden pb-12 transition-all duration-300 ${lang === 'ar' ? 'rtl font-headline' : 'ltr font-body'}`} 
       dir={lang === 'ar' ? 'rtl' : 'ltr'}
       suppressHydrationWarning
     >
       <div className="absolute top-[-10%] right-[-20%] w-[100%] h-[50%] bg-primary/5 blur-[120px] rounded-full -z-10"></div>
       
-      <header className="p-6 flex items-center justify-between pointer-events-auto relative z-50">
+      <header className="p-6 flex items-center justify-between relative z-50">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl glass border-primary/20 flex items-center justify-center">
             <Shield className="w-6 h-6 text-primary" />
@@ -120,7 +139,7 @@ export default function Home() {
         </div>
         <div className="flex gap-2">
           <button 
-            onClick={() => setLang(l => l === 'en' ? 'ar' : 'en')}
+            onClick={toggleLang}
             className="w-10 h-10 rounded-xl glass flex items-center justify-center text-primary border border-primary/20 hover:bg-primary/10 transition-all active:scale-95"
             title="Switch Language"
           >
@@ -132,25 +151,25 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="flex-1 p-6 space-y-8 overflow-y-auto custom-scrollbar pointer-events-auto relative z-10">
-        <section className="animate-in fade-in slide-in-from-top-2 duration-300">
-          <DeviceMonitor hasPermission={hasPermission} setHasPermission={setHasPermission} labels={t} />
+      <main className="flex-1 p-6 space-y-8 overflow-y-auto custom-scrollbar relative z-10">
+        <section className="animate-in fade-in slide-in-from-top-2 duration-200">
+          <DeviceMonitor hasPermission={hasPermission} setHasPermission={handlePermissionChange} labels={t} />
         </section>
 
-        <section className="animate-in fade-in zoom-in duration-300">
+        <section className="animate-in fade-in zoom-in duration-200">
           <BoostButton labels={t} />
         </section>
 
-        <section className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+        <section className="animate-in fade-in slide-in-from-bottom-2 duration-200">
           <AIAdvisor labels={t} hasPermission={hasPermission} />
         </section>
 
-        <section className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+        <section className="animate-in fade-in slide-in-from-bottom-2 duration-200">
           <GameLauncher labels={t} />
         </section>
       </main>
 
-      <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-[340px] glass h-16 rounded-3xl flex items-center justify-around px-4 border-white/5 z-40 pointer-events-auto">
+      <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-[340px] glass h-16 rounded-3xl flex items-center justify-around px-4 border-white/5 z-40">
         <button className="p-2 rounded-xl text-primary bg-primary/10">
           <Shield className="w-6 h-6" />
         </button>
@@ -161,9 +180,9 @@ export default function Home() {
 
       <SidebarTools 
         lang={lang} 
-        setLang={setLang} 
+        setLang={toggleLang} 
         hasPermission={hasPermission} 
-        setHasPermission={setHasPermission}
+        setHasPermission={handlePermissionChange}
         labels={t}
       />
       <Toaster />

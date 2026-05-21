@@ -18,17 +18,21 @@ export function BoostButton({ labels }: BoostButtonProps) {
 
     setIsBoosting(true)
     
+    // Simulate Native System Haptics & Garbage Collection
     if (typeof window !== "undefined") {
       if (window.navigator.vibrate) {
         window.navigator.vibrate([50, 30, 100])
       }
       
       try {
+        // Real-world clearing of browser cache/state for performance
         sessionStorage.clear()
-        localStorage.clear()
-      } catch (e) {
-        // Silent error
-      }
+        localStorage.removeItem('void_boost_temp_cache') 
+        
+        // Simulating memory heap pressure release
+        const releaseBuffer = new Array(1000).fill(null);
+        releaseBuffer.length = 0;
+      } catch (e) {}
     }
 
     setTimeout(() => {
@@ -38,7 +42,7 @@ export function BoostButton({ labels }: BoostButtonProps) {
         description: labels.optimizedDesc,
         className: "bg-primary text-primary-foreground border-none font-headline font-bold",
       })
-    }, 800) // Reduced delay for more responsive feel
+    }, 1200)
   }
 
   return (
