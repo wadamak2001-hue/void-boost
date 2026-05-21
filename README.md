@@ -16,7 +16,7 @@ Upload this code to a new repository on your GitHub account.
 - It will trigger automatically on every push, or you can run it manually.
 
 ### 3. Download the APK
-- Once the build finish (usually takes 3-5 minutes), click on the completed run.
+- Once the build finishes (usually takes 3-5 minutes), click on the completed run.
 - Scroll down to the **Artifacts** section.
 - Download the `VOID-BOOST-Debug-APK` zip file, extract it, and install the `.apk` on your phone.
 
