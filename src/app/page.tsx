@@ -8,7 +8,8 @@ import { GameLauncher } from "@/components/game/game-launcher"
 import { AIAdvisor } from "@/components/dashboard/ai-advisor"
 import { SidebarTools } from "@/components/dashboard/sidebar-tools"
 import { DebugConsole } from "@/components/dashboard/debug-console"
-import { Shield, User, Cpu, Globe } from "lucide-react"
+import { GitHubDeployer } from "@/components/dashboard/github-deployer"
+import { Shield, User, Cpu, Globe, Cloud } from "lucide-react"
 import { Toaster } from "@/components/ui/toaster"
 import { logger } from "@/hooks/use-debug-logs"
 
@@ -48,7 +49,9 @@ export const DICTIONARY = {
     discovery: "System App Discovery",
     syncing: "SYNCING REGISTRY...",
     refresh: "REFRESH LIST",
-    report: "REPORT BUG"
+    report: "REPORT BUG",
+    cloudTitle: "CLOUD APK BUILDER",
+    cloudDesc: "Push code to GitHub to build APK"
   },
   ar: {
     brand: "فويد بوست",
@@ -83,7 +86,9 @@ export const DICTIONARY = {
     discovery: "اكتشاف تطبيقات النظام",
     syncing: "جاري مزامنة السجل...",
     refresh: "تحديث القائمة",
-    report: "إبلاغ عن خطأ"
+    report: "إبلاغ عن خطأ",
+    cloudTitle: "باني APK السحابي",
+    cloudDesc: "ارفع الكود إلى GitHub لبناء APK"
   }
 }
 
@@ -130,6 +135,12 @@ export default function Home() {
     }
   }
 
+  const scrollToDeploy = () => {
+    const el = document.getElementById('cloud-deploy-section')
+    if (el) el.scrollIntoView({ behavior: 'smooth' })
+    logger.add('Navigation: Scrolled to Cloud Deployer', 'info')
+  }
+
   const t = DICTIONARY[lang]
 
   if (!isReady) return <div className="min-h-screen bg-[#0A0C12]" />;
@@ -170,7 +181,11 @@ export default function Home() {
           >
             <Globe className="w-5 h-5" />
           </button>
-          <button className="w-10 h-10 rounded-xl glass flex items-center justify-center text-muted-foreground hover:text-primary transition-all">
+          <button 
+            onClick={scrollToDeploy}
+            className="w-10 h-10 rounded-xl glass border-white/10 flex items-center justify-center text-muted-foreground hover:text-primary transition-all active:scale-95"
+            title="Deployment Settings"
+          >
             <User className="w-5 h-5" />
           </button>
         </div>
@@ -183,6 +198,21 @@ export default function Home() {
 
         <section className="animate-in fade-in zoom-in duration-200">
           <BoostButton labels={t} />
+        </section>
+
+        <section id="cloud-deploy-section" className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+          <div className="glass p-6 rounded-3xl border-primary/20 bg-primary/5">
+             <div className="flex items-center gap-3 mb-4">
+               <div className="p-2.5 rounded-xl bg-primary/20 text-primary">
+                 <Cloud className="w-6 h-6" />
+               </div>
+               <div>
+                 <h2 className="font-headline text-lg font-bold uppercase tracking-tight">{t.cloudTitle}</h2>
+                 <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">{t.cloudDesc}</p>
+               </div>
+             </div>
+             <GitHubDeployer />
+          </div>
         </section>
 
         <section className="animate-in fade-in slide-in-from-bottom-2 duration-200">
@@ -198,8 +228,8 @@ export default function Home() {
         <button className="p-2 rounded-xl text-primary bg-primary/10">
           <Shield className="w-6 h-6" />
         </button>
-        <button className="p-2 rounded-xl text-muted-foreground hover:text-primary transition-colors">
-          <Cpu className="w-6 h-6" />
+        <button onClick={scrollToDeploy} className="p-2 rounded-xl text-muted-foreground hover:text-primary transition-colors">
+          <Cloud className="w-6 h-6" />
         </button>
       </nav>
 

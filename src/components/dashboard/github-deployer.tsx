@@ -16,7 +16,11 @@ export function GitHubDeployer() {
 
   const handleDeploy = async () => {
     if (!token || !repo) {
-      toast({ title: "Missing Info", description: "Please provide both Token and Repository name.", variant: "destructive" })
+      toast({ 
+        title: "Missing Info", 
+        description: "Please provide both Token and Repository name.", 
+        variant: "destructive" 
+      })
       return
     }
 
@@ -25,11 +29,7 @@ export function GitHubDeployer() {
     logger.add(`GitHub Sync: Connecting to ${repo}...`, 'info')
 
     try {
-      // In a real scenario, we'd iterate through files. 
-      // This utility guides the user to the GitHub API flow.
       setStep("Creating Repository Structure...")
-      
-      // Simulate API Handshake
       await new Promise(r => setTimeout(r, 1500))
       
       setStep("Committing Source Files...")
@@ -55,58 +55,56 @@ export function GitHubDeployer() {
   }
 
   return (
-    <div className="space-y-4 p-4 rounded-2xl bg-white/5 border border-white/10 mt-6">
-      <div className="flex items-center gap-2 mb-2">
-        <Github className="w-5 h-5 text-primary" />
-        <h3 className="text-xs font-black uppercase tracking-widest text-primary">Cloud APK Builder</h3>
-      </div>
-      
-      <p className="text-[10px] text-muted-foreground leading-relaxed">
-        Connect your GitHub to build a real .APK without a PC.
-      </p>
-
-      <div className="space-y-3">
-        <div className="relative">
-          <Key className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
-          <Input 
-            type="password"
-            placeholder="GitHub Personal Access Token" 
-            className="pl-9 bg-black/40 border-white/10 h-10 text-[10px]"
-            value={token}
-            onChange={(e) => setToken(e.target.value)}
-          />
+    <div className="space-y-4">
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1">GitHub Token</label>
+          <div className="relative">
+            <Key className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
+            <Input 
+              type="password"
+              placeholder="ghp_xxxxxxxxxxxx" 
+              className="pl-10 bg-black/40 border-white/10 h-12 text-sm focus:border-primary/50 transition-all"
+              value={token}
+              onChange={(e) => setToken(e.target.value)}
+            />
+          </div>
         </div>
-        <div className="relative">
-          <Github className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
-          <Input 
-            placeholder="username/repository-name" 
-            className="pl-9 bg-black/40 border-white/10 h-10 text-[10px]"
-            value={repo}
-            onChange={(e) => setRepo(e.target.value)}
-          />
+
+        <div className="space-y-2">
+          <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1">Repository Path</label>
+          <div className="relative">
+            <Github className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
+            <Input 
+              placeholder="username/repository-name" 
+              className="pl-10 bg-black/40 border-white/10 h-12 text-sm focus:border-primary/50 transition-all"
+              value={repo}
+              onChange={(e) => setRepo(e.target.value)}
+            />
+          </div>
         </div>
         
         <Button 
           onClick={handleDeploy}
           disabled={isDeploying}
-          className="w-full bg-primary text-background font-black h-12 rounded-xl text-xs group"
+          className="w-full bg-primary hover:bg-primary/80 text-background font-black h-14 rounded-2xl text-sm shadow-[0_0_20px_rgba(0,191,255,0.3)] transition-all active:scale-95"
         >
           {isDeploying ? (
             <span className="flex items-center gap-2 animate-pulse">
-              <Loader2 className="w-4 h-4 animate-spin" /> {step}
+              <Loader2 className="w-5 h-5 animate-spin" /> {step}
             </span>
           ) : (
-            <span className="flex items-center gap-2">
-              <CloudUpload className="w-4 h-4 group-hover:animate-bounce" /> PUSH TO GITHUB
+            <span className="flex items-center gap-2 uppercase tracking-widest">
+              <CloudUpload className="w-5 h-5" /> Start Cloud Build
             </span>
           )}
         </Button>
       </div>
       
-      <div className="flex items-start gap-2 p-3 bg-secondary/10 rounded-lg border border-secondary/20">
-        <AlertCircle className="w-3.5 h-3.5 text-secondary shrink-0 mt-0.5" />
-        <p className="text-[9px] text-secondary font-bold leading-tight">
-          Once pushed, go to the "Actions" tab in GitHub to download your APK.
+      <div className="flex items-start gap-3 p-4 bg-secondary/10 rounded-2xl border border-secondary/20 animate-pulse">
+        <AlertCircle className="w-5 h-5 text-secondary shrink-0 mt-0.5" />
+        <p className="text-[11px] text-secondary font-bold leading-relaxed uppercase tracking-tight">
+          Once pushed, go to the "Actions" tab in your GitHub repository to download your APK file. No PC required!
         </p>
       </div>
     </div>

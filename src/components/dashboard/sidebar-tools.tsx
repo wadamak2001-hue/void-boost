@@ -5,14 +5,13 @@ import { useState } from "react"
 import { 
   Sun, BellOff, Camera, Video, 
   Globe, ShieldCheck, Bug,
-  ChevronLeft, Cloud
+  ChevronLeft, Cloud, Terminal
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Switch } from "@/components/ui/switch"
 import { type Language } from "@/app/page"
 import { logger } from "@/hooks/use-debug-logs"
 import { toast } from "@/hooks/use-toast"
-import { GitHubDeployer } from "./github-deployer"
 
 interface SidebarToolsProps {
   lang: Language
@@ -134,7 +133,9 @@ export function SidebarTools({ lang, setLang, hasPermission, setHasPermission, l
             ))}
           </div>
 
-          <GitHubDeployer />
+          <div className="pt-4 space-y-2">
+             <p className="text-[8px] text-muted-foreground uppercase font-black text-center opacity-40">System Layer v1.0.4</p>
+          </div>
         </div>
       </div>
     </div>
