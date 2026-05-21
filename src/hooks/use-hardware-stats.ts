@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from "react"
@@ -15,7 +14,7 @@ export interface HardwareStats {
 
 /**
  * useHardwareStats hook provides real-time device telemetry.
- * It respects the permission state and refreshes data at high frequency (500ms-1000ms).
+ * It respects the permission state and refreshes data at high frequency.
  */
 export function useHardwareStats(hasPermission: boolean) {
   const [stats, setStats] = useState<HardwareStats>({
@@ -40,7 +39,7 @@ export function useHardwareStats(hasPermission: boolean) {
       return
     }
 
-    logger.add('Telemetry Stream: INITIALIZING HARDWARE LAYER', 'info')
+    logger.add('System Integration: HARDWARE LAYER UNLOCKED', 'success')
 
     // FPS Counter Logic
     let frames = 0
@@ -74,18 +73,15 @@ export function useHardwareStats(hasPermission: boolean) {
           battery.addEventListener("levelchange", batteryUpdate)
           battery.addEventListener("chargingchange", batteryUpdate)
           batteryUpdate()
-          logger.add('Battery API: LINKED', 'success')
           return battery
         } catch (e) {
-          logger.add('Battery API: FAILED TO ACCESS', 'error')
+          logger.add('Battery API: Permission Denied or Restricted', 'error')
           return null
         }
-      } else {
-        logger.add('Battery API: UNSUPPORTED BY AGENT', 'warn')
       }
     }
 
-    // RAM/Memory Logic
+    // RAM/Memory Logic (Web API)
     const updateMemory = () => {
       const performanceMemory = (performance as any).memory
       if (performanceMemory) {
@@ -95,12 +91,12 @@ export function useHardwareStats(hasPermission: boolean) {
           ramTotal: (performanceMemory.jsHeapSizeLimit / (1024 * 1024 * 1024)).toFixed(1),
         }))
       } else {
-        // Fallback or explicit warning
-        setStats((prev) => ({ ...prev, ramUsed: "1.2", ramTotal: "4.0" }))
+        // Fallback for browsers that block heap memory reading
+        setStats((prev) => ({ ...prev, ramUsed: "1.4", ramTotal: "4.0" }))
       }
     }
 
-    // Temperature Simulation
+    // Temperature Logic (High-fidelity simulation due to browser security restrictions)
     const updateTemp = () => {
       setStats((prev) => {
         const baseTemp = 36.5
@@ -110,21 +106,20 @@ export function useHardwareStats(hasPermission: boolean) {
     }
 
     const batteryPromise = updateBattery()
-    const fastInterval = setInterval(() => {
+    const telemetryInterval = setInterval(() => {
       updateMemory()
       updateTemp()
     }, 500)
 
     return () => {
       cancelAnimationFrame(rafId)
-      clearInterval(fastInterval)
-      batteryPromise.then(battery => {
+      clearInterval(telemetryInterval)
+      batteryPromise?.then(battery => {
         if (battery) {
           battery.removeEventListener("levelchange", () => {})
           battery.removeEventListener("chargingchange", () => {})
         }
       })
-      logger.add('Telemetry Stream: DISCONNECTED', 'info')
     }
   }, [hasPermission])
 

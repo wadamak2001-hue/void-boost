@@ -1,10 +1,10 @@
-
 "use client"
 
-import { Cpu, Thermometer, Database, Battery, Lock, ShieldAlert } from "lucide-react"
+import { Cpu, Thermometer, Database, Battery, ShieldAlert, Loader2 } from "lucide-react"
 import { StatCard } from "./stat-card"
 import { useHardwareStats } from "@/hooks/use-hardware-stats"
-import { Button } from "@/components/ui/button"
+import { useState } from "react"
+import { logger } from "@/hooks/use-debug-logs"
 
 interface DeviceMonitorProps {
   hasPermission: boolean
@@ -13,11 +13,19 @@ interface DeviceMonitorProps {
 }
 
 export function DeviceMonitor({ hasPermission, setHasPermission, labels }: DeviceMonitorProps) {
+  const [isRequesting, setIsRequesting] = useState(false)
   const stats = useHardwareStats(hasPermission)
 
   const handleRequestAccess = () => {
-    // Simulate Android system permission request
-    setHasPermission(true)
+    setIsRequesting(true)
+    logger.add('System: Requesting Overlay & Usage Permissions...', 'info')
+    
+    // Simulate Android System Dialog delay
+    setTimeout(() => {
+      setHasPermission(true)
+      setIsRequesting(false)
+      logger.add('System: Permissions Granted by User', 'success')
+    }, 1200)
   }
 
   return (
@@ -25,19 +33,20 @@ export function DeviceMonitor({ hasPermission, setHasPermission, labels }: Devic
       {!hasPermission && (
         <button 
           onClick={handleRequestAccess}
-          className="w-full glass p-4 rounded-2xl flex items-center justify-between border-primary/30 bg-primary/5 hover:bg-primary/10 transition-all group animate-in fade-in slide-in-from-top-4 duration-500"
+          disabled={isRequesting}
+          className="w-full glass p-5 rounded-3xl flex items-center justify-between border-primary/40 bg-primary/10 hover:bg-primary/20 transition-all group animate-in slide-in-from-top-4 duration-500 active:scale-95"
         >
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-primary/20 text-primary">
-              <ShieldAlert className="w-5 h-5" />
+          <div className="flex items-center gap-4">
+            <div className="p-3 rounded-2xl bg-primary/20 text-primary">
+              {isRequesting ? <Loader2 className="w-6 h-6 animate-spin" /> : <ShieldAlert className="w-6 h-6" />}
             </div>
             <div className="text-left rtl:text-right">
-              <p className="text-xs font-black uppercase tracking-wider text-primary">{labels.permRequired}</p>
+              <p className="text-sm font-black uppercase tracking-wider text-primary">{labels.permRequired}</p>
               <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">{labels.permDesc}</p>
             </div>
           </div>
-          <span className="text-[10px] font-black bg-primary text-background px-3 py-1.5 rounded-lg group-hover:scale-105 transition-transform">
-            {labels.requestAccess}
+          <span className="text-[10px] font-black bg-primary text-background px-4 py-2 rounded-xl group-hover:scale-105 transition-transform uppercase">
+            {isRequesting ? 'Authorizing...' : labels.requestAccess}
           </span>
         </button>
       )}
@@ -54,7 +63,7 @@ export function DeviceMonitor({ hasPermission, setHasPermission, labels }: Devic
         <StatCard 
           label={labels.thermal} 
           value={hasPermission ? stats.temp : '---'} 
-          unit={hasPermission && typeof stats.temp === 'number' ? '°C' : ''} 
+          unit={hasPermission && stats.temp !== 'Locked' ? '°C' : ''} 
           icon={<Thermometer className="w-5 h-5" />} 
           locked={!hasPermission}
           onClick={!hasPermission ? handleRequestAccess : undefined}
