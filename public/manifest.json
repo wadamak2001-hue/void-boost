@@ -1,8 +1,8 @@
 
 {
-  "name": "VOID BOOST Gaming Optimizer",
-  "short_name": "VOID BOOST",
-  "description": "Ultimate Android Gaming Performance Tool",
+  "name": "VOID BOOST",
+  "short_name": "VOIDBOOST",
+  "description": "Ultimate Gaming Performance Optimizer",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0A0C12",

@@ -1,3 +1,4 @@
+
 import type { Metadata, Viewport } from 'next';
 import { Inter, Poppins } from 'next/font/google';
 import './globals.css';
@@ -46,6 +47,7 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="https://picsum.photos/seed/voidboost/192/192" />
         <link rel="apple-touch-icon" href="https://picsum.photos/seed/voidboost/192/192" />
+        <link rel="manifest" href="/manifest.json" />
       </head>
       <body className="font-body antialiased bg-background overflow-x-hidden" suppressHydrationWarning>
         {children}

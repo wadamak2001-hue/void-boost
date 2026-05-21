@@ -5,13 +5,14 @@ import { useState } from "react"
 import { 
   Sun, BellOff, Camera, Video, 
   Globe, ShieldCheck, Bug,
-  ChevronLeft
+  ChevronLeft, Cloud
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Switch } from "@/components/ui/switch"
 import { type Language } from "@/app/page"
 import { logger } from "@/hooks/use-debug-logs"
 import { toast } from "@/hooks/use-toast"
+import { GitHubDeployer } from "./github-deployer"
 
 interface SidebarToolsProps {
   lang: Language
@@ -72,7 +73,7 @@ export function SidebarTools({ lang, setLang, hasPermission, setHasPermission, l
       </button>
 
       <div className={cn(
-        "w-72 glass p-6 h-[600px] overflow-y-auto custom-scrollbar shadow-2xl",
+        "w-72 glass p-6 h-[85vh] overflow-y-auto custom-scrollbar shadow-2xl",
         lang === 'ar' ? "rounded-r-2xl border-l-0" : "rounded-l-2xl border-r-0"
       )}>
         <div className="space-y-8">
@@ -132,6 +133,8 @@ export function SidebarTools({ lang, setLang, hasPermission, setHasPermission, l
               </button>
             ))}
           </div>
+
+          <GitHubDeployer />
         </div>
       </div>
     </div>
