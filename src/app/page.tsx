@@ -7,7 +7,7 @@ import { DeviceMonitor } from "@/components/dashboard/device-monitor"
 import { GameLauncher } from "@/components/game/game-launcher"
 import { AIAdvisor } from "@/components/dashboard/ai-advisor"
 import { SidebarTools } from "@/components/dashboard/sidebar-tools"
-import { Shield, Bell, User, Cpu } from "lucide-react"
+import { Shield, Bell, User, Cpu, Globe } from "lucide-react"
 import { Toaster } from "@/components/ui/toaster"
 
 export type Language = 'en' | 'ar';
@@ -34,7 +34,8 @@ export const DICTIONARY = {
     optimized: "SYSTEM OPTIMIZED",
     optimizedDesc: "Idle threads suspended. Memory cleared.",
     permRequired: "Permission Required",
-    permDesc: "Enable System Access in settings to view live telemetry.",
+    permDesc: "Unlock system metrics",
+    requestAccess: "GRANT ACCESS",
     brightness: "Brightness",
     dnd: "DND Mode",
     screenshot: "Screenshot",
@@ -61,7 +62,8 @@ export const DICTIONARY = {
     optimized: "تم تحسين النظام",
     optimizedDesc: "تم تعليق العمليات الخاملة. تم مسح الذاكرة.",
     permRequired: "الأذونات مطلوبة",
-    permDesc: "قم بتفعيل الوصول للنظام من الإعدادات لعرض البيانات الحية.",
+    permDesc: "افتح مقاييس النظام",
+    requestAccess: "منح الإذن",
     brightness: "السطوع",
     dnd: "وضع الهدوء",
     screenshot: "لقطة شاشة",
@@ -75,7 +77,6 @@ export default function Home() {
   const [isReady, setIsReady] = useState(false)
 
   useEffect(() => {
-    // Instant ready state to bypass initial hydration flicker
     setIsReady(true)
   }, [])
 
@@ -85,7 +86,7 @@ export default function Home() {
 
   return (
     <div 
-      className={`min-h-screen max-w-md mx-auto bg-[#0A0C12] relative flex flex-col overflow-hidden pb-12 pointer-events-auto ${lang === 'ar' ? 'rtl font-headline' : 'ltr font-body'}`} 
+      className={`min-h-screen max-w-md mx-auto bg-[#0A0C12] relative flex flex-col overflow-hidden pb-12 pointer-events-auto transition-all duration-300 ${lang === 'ar' ? 'rtl font-headline' : 'ltr font-body'}`} 
       dir={lang === 'ar' ? 'rtl' : 'ltr'}
       suppressHydrationWarning
     >
@@ -106,8 +107,12 @@ export default function Home() {
           </div>
         </div>
         <div className="flex gap-2">
-          <button className="w-10 h-10 rounded-xl glass flex items-center justify-center text-muted-foreground hover:text-primary transition-all">
-            <Bell className="w-5 h-5" />
+          <button 
+            onClick={() => setLang(l => l === 'en' ? 'ar' : 'en')}
+            className="w-10 h-10 rounded-xl glass flex items-center justify-center text-primary border border-primary/20 hover:bg-primary/10 transition-all active:scale-95"
+            title="Switch Language"
+          >
+            <Globe className="w-5 h-5" />
           </button>
           <button className="w-10 h-10 rounded-xl glass flex items-center justify-center text-muted-foreground hover:text-primary transition-all">
             <User className="w-5 h-5" />
@@ -117,7 +122,7 @@ export default function Home() {
 
       <main className="flex-1 p-6 space-y-8 overflow-y-auto custom-scrollbar pointer-events-auto relative z-10">
         <section className="animate-in fade-in slide-in-from-top-2 duration-300">
-          <DeviceMonitor hasPermission={hasPermission} labels={t} />
+          <DeviceMonitor hasPermission={hasPermission} setHasPermission={setHasPermission} labels={t} />
         </section>
 
         <section className="animate-in fade-in zoom-in duration-300">
