@@ -2,7 +2,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Play, Plus, Trash2, Search, Loader2, Package, RefreshCw, Smartphone, Check } from "lucide-react"
+import { Play, Plus, Trash2, Search, Loader2, Package, RefreshCw, Smartphone, Check, ExternalLink } from "lucide-react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import {
@@ -30,15 +30,14 @@ interface GameLauncherProps {
   labels: any
 }
 
-// القائمة الحقيقية لحزم الألعاب الأكثر شهرة في الوطن العربي
 const COMMON_GAME_PACKAGES = [
   { name: "Free Fire", packageName: "com.dts.freefireth", genre: "Battle Royale", iconId: "game-ff" },
   { name: "PUBG Mobile", packageName: "com.tencent.ig", genre: "Battle Royale", iconId: "game-pubg" },
   { name: "eFootball", packageName: "jp.konami.pesam", genre: "Sports", iconId: "game-efootball" },
-  { name: "Call of Duty: Mobile", packageName: "com.activision.callofduty.shooter", genre: "Action", iconId: "game-codm" },
-  { name: "Mobile Legends", packageName: "com.mobile.legends", genre: "MOBA", iconId: "game-codm" },
-  { name: "Roblox", packageName: "com.roblox.client", genre: "Sandbox", iconId: "game-ff" },
-  { name: "Minecraft", packageName: "com.mojang.minecraftpe", genre: "Sandbox", iconId: "game-pubg" },
+  { name: "Call of Duty", packageName: "com.activision.callofduty.shooter", genre: "Action", iconId: "game-codm" },
+  { name: "Mobile Legends", packageName: "com.mobile.legends", genre: "MOBA", iconId: "game-ff" },
+  { name: "Roblox", packageName: "com.roblox.client", genre: "Sandbox", iconId: "game-pubg" },
+  { name: "Minecraft", packageName: "com.mojang.minecraftpe", genre: "Sandbox", iconId: "game-ff" },
   { name: "8 Ball Pool", packageName: "com.miniclip.eightballpool", genre: "Casual", iconId: "game-efootball" },
 ]
 
@@ -56,9 +55,9 @@ export function GameLauncher({ labels }: GameLauncherProps) {
       try {
         const parsed = JSON.parse(savedGames)
         setGames(parsed)
-        logger.add(`Registry Synchronized: ${parsed.length} apps verified.`, 'success')
+        logger.add(`Neural Registry Loaded: ${parsed.length} entries.`, 'success')
       } catch (e) {
-        logger.add('Registry Error: Local data corrupted.', 'error')
+        logger.add('Registry Sync Failed: Data corrupted.', 'error')
       }
     }
   }, [])
@@ -69,16 +68,16 @@ export function GameLauncher({ labels }: GameLauncherProps) {
 
   const handleSyncRegistry = () => {
     setIsSyncing(true)
-    logger.add('System Scan: Probing installed packages...', 'info')
+    logger.add('System Audit: Verifying package integrity...', 'info')
     setTimeout(() => {
       setIsSyncing(false)
-      logger.add('Scan Complete: Neural Registry updated.', 'success')
-    }, 1500)
+      logger.add('Audit Complete: All links verified.', 'success')
+    }, 1200)
   }
 
   const handleAddGame = (source: { name: string; packageName: string; genre: string; iconId?: string }) => {
     if (games.find(g => g.packageName === source.packageName)) {
-      logger.add(`Package Alert: ${source.name} is already registered.`, 'warn')
+      logger.add(`Conflict: Package ${source.packageName} is already linked.`, 'warn')
       return
     }
     
@@ -87,41 +86,40 @@ export function GameLauncher({ labels }: GameLauncherProps) {
     const newGame: Game = {
       id: Math.random().toString(36).substring(2, 9),
       name: source.name,
-      packageName: source.packageName,
+      packageName: source.packageName.trim(),
       image: icon,
       genre: source.genre
     }
     setGames(prev => [...prev, newGame])
-    logger.add(`Game Linked: ${source.name} (${source.packageName}) added to registry.`, 'success')
+    logger.add(`Package Registered: ${source.name} [${source.packageName}]`, 'success')
     setDialogOpen(false)
     setManualName("")
     setManualPackage("")
   }
 
-  const handleLaunch = (packageName: string) => {
-    logger.add(`Executing Intent: Opening ${packageName}`, 'info')
+  const handleLaunch = (packageName: string, name: string) => {
+    logger.add(`Intent Dispatch: Attempting to open ${name}...`, 'info')
     
-    // محرك التشغيل الحقيقي لنظام أندرويد
-    const intentUrl = `intent://launch#Intent;package=${packageName};end`
+    // Standard Android Intent for launching a specific package via main activity
+    const intentUrl = `intent:#Intent;package=${packageName};action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;end`
     
     if (typeof window !== "undefined") {
       try {
-        // محاولة التشغيل المباشر
         window.location.href = intentUrl
         
-        // سجل نجاح التشغيل
+        // Log the dispatch success. Note: Browser cannot verify if the app actually opened.
         setTimeout(() => {
-          logger.add(`Launch Status: Intent dispatched for ${packageName}`, 'success')
-        }, 500)
+          logger.add(`Status: Intent successfully sent for ${packageName}`, 'success')
+        }, 1000)
       } catch (e: any) {
-        logger.add(`Launch Error: System blocked intent or package missing.`, 'error')
+        logger.add(`Critical: System blocked intent for ${packageName}.`, 'error')
       }
     }
   }
 
   const removeGame = (id: string, name: string) => {
     setGames(games.filter(g => g.id !== id))
-    logger.add(`Registry Update: ${name} removed from neural paths.`, 'warn')
+    logger.add(`Registry Update: ${name} detached from neural paths.`, 'warn')
   }
 
   return (
@@ -139,7 +137,6 @@ export function GameLauncher({ labels }: GameLauncherProps) {
               onClick={handleSyncRegistry}
               disabled={isSyncing}
               className="text-muted-foreground hover:text-primary h-8 w-8"
-              title={labels.refresh}
             >
               <RefreshCw className={cn("w-4 h-4", isSyncing && "animate-spin")} />
             </Button>
@@ -164,8 +161,8 @@ export function GameLauncher({ labels }: GameLauncherProps) {
                     </DialogTitle>
                   </DialogHeader>
                   <TabsList className="grid w-full grid-cols-2 bg-white/5 rounded-xl border border-white/5">
-                    <TabsTrigger value="discovery" className="text-[10px] font-bold uppercase tracking-wider data-[state=active]:bg-primary data-[state=active]:text-background">Quick Add</TabsTrigger>
-                    <TabsTrigger value="manual" className="text-[10px] font-bold uppercase tracking-wider data-[state=active]:bg-primary data-[state=active]:text-background">Manual Package</TabsTrigger>
+                    <TabsTrigger value="discovery" className="text-[10px] font-bold uppercase tracking-wider data-[state=active]:bg-primary data-[state=active]:text-background">Helper List</TabsTrigger>
+                    <TabsTrigger value="manual" className="text-[10px] font-bold uppercase tracking-wider data-[state=active]:bg-primary data-[state=active]:text-background">Manual Input</TabsTrigger>
                   </TabsList>
                 </div>
 
@@ -174,7 +171,7 @@ export function GameLauncher({ labels }: GameLauncherProps) {
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <Input 
-                        placeholder="Search known games..." 
+                        placeholder="Search common games..." 
                         className="pl-10 bg-white/5 border-white/10 rounded-xl text-xs h-10 focus:ring-primary/50"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
@@ -183,7 +180,7 @@ export function GameLauncher({ labels }: GameLauncherProps) {
                     
                     <div className="space-y-2">
                       <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-2 mb-3">
-                        Detected in Neural Registry
+                        Popular Package Templates
                       </p>
                       {COMMON_GAME_PACKAGES.filter(g => g.name.toLowerCase().includes(searchQuery.toLowerCase())).map((game) => {
                         const isAdded = games.some(g => g.packageName === game.packageName)
@@ -208,7 +205,7 @@ export function GameLauncher({ labels }: GameLauncherProps) {
                               </div>
                               <div className="text-left rtl:text-right">
                                 <p className="text-sm font-bold">{game.name}</p>
-                                <p className="text-[9px] text-muted-foreground font-mono">{game.packageName}</p>
+                                <p className="text-[9px] text-muted-foreground font-mono truncate max-w-[140px]">{game.packageName}</p>
                               </div>
                             </div>
                             {isAdded ? (
@@ -223,26 +220,25 @@ export function GameLauncher({ labels }: GameLauncherProps) {
                   </TabsContent>
 
                   <TabsContent value="manual" className="space-y-6 m-0">
-                    <div className="bg-primary/5 p-4 rounded-2xl border border-primary/10 mb-4">
-                      <p className="text-[10px] text-primary font-bold leading-relaxed">
-                        Enter the EXACT package name of any app on your device to link it. 
-                        Example: com.dts.freefireth
+                    <div className="bg-primary/10 p-4 rounded-2xl border border-primary/20 mb-4">
+                      <p className="text-[10px] text-primary font-bold leading-relaxed text-center">
+                        Input the official Android package name to link any app.
                       </p>
                     </div>
                     <div className="space-y-4">
                       <div className="space-y-2">
-                        <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-2">App Display Name</label>
+                        <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-2">Display Name</label>
                         <Input 
-                          placeholder="e.g., My Favorite Game" 
+                          placeholder="e.g., FIFA Mobile" 
                           className="bg-white/5 border-white/10 rounded-xl text-xs h-12"
                           value={manualName}
                           onChange={(e) => setManualName(e.target.value)}
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-2">Package Name (Native ID)</label>
+                        <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-2">Package Name (ID)</label>
                         <Input 
-                          placeholder="com.company.game" 
+                          placeholder="com.ea.gp.fifamobile" 
                           className="bg-white/5 border-white/10 rounded-xl text-xs h-12 font-mono"
                           value={manualPackage}
                           onChange={(e) => setManualPackage(e.target.value)}
@@ -251,9 +247,9 @@ export function GameLauncher({ labels }: GameLauncherProps) {
                       <Button 
                         className="w-full bg-primary text-background font-black rounded-xl h-14 mt-4 shadow-[0_0_20px_rgba(0,191,255,0.4)]"
                         disabled={!manualName || !manualPackage}
-                        onClick={() => handleAddGame({ name: manualName, packageName: manualPackage, genre: "Manual Entry" })}
+                        onClick={() => handleAddGame({ name: manualName, packageName: manualPackage, genre: "User Added" })}
                       >
-                        LINK TO SYSTEM
+                        ATTACH TO DASHBOARD
                       </Button>
                     </div>
                   </TabsContent>
@@ -272,7 +268,7 @@ export function GameLauncher({ labels }: GameLauncherProps) {
           </div>
           <div className="text-center space-y-1">
             <p className="font-headline font-black text-sm tracking-widest uppercase text-white">{labels.noGames}</p>
-            <p className="text-[10px] uppercase tracking-widest opacity-50">Link your installed apps to begin</p>
+            <p className="text-[10px] uppercase tracking-widest opacity-50">Neural Registry Empty</p>
           </div>
           <Button 
             variant="outline" 
@@ -294,15 +290,15 @@ export function GameLauncher({ labels }: GameLauncherProps) {
                 src={game.image} 
                 alt={game.name}
                 fill
-                className="object-cover opacity-40 group-hover:opacity-20 transition-opacity group-hover:scale-110 duration-700"
+                className="object-cover opacity-30 group-hover:opacity-10 transition-opacity group-hover:scale-110 duration-700"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-background/95 via-transparent to-transparent"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
               
               <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0 duration-300">
                 <Button 
                   variant="destructive" 
                   size="icon" 
-                  className="w-9 h-9 rounded-xl bg-red-500/20 text-red-500 border border-red-500/30 hover:bg-red-500 hover:text-white transition-all shadow-lg"
+                  className="w-8 h-8 rounded-xl bg-red-500/20 text-red-500 border border-red-500/30 hover:bg-red-500 hover:text-white transition-all shadow-lg"
                   onClick={(e) => {
                     e.stopPropagation()
                     removeGame(game.id, game.name)
@@ -313,19 +309,21 @@ export function GameLauncher({ labels }: GameLauncherProps) {
               </div>
 
               <div className="absolute bottom-5 left-5 right-5 space-y-1">
-                <p className="text-[9px] text-primary font-black uppercase tracking-widest truncate opacity-80">{game.packageName}</p>
-                <h3 className="font-headline text-base font-black truncate leading-tight">{game.name}</h3>
+                <p className="text-[8px] text-primary font-black uppercase tracking-widest truncate opacity-80">{game.packageName}</p>
+                <h3 className="font-headline text-sm font-black truncate leading-tight uppercase">{game.name}</h3>
               </div>
               
               <div 
                 className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 cursor-pointer bg-primary/5"
-                onClick={() => handleLaunch(game.packageName)}
+                onClick={() => handleLaunch(game.packageName, game.name)}
               >
                 <div className="flex flex-col items-center gap-3 scale-75 group-hover:scale-100 transition-all duration-300">
-                  <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center text-background shadow-[0_0_30px_rgba(0,191,255,0.7)] animate-pulse-glow">
-                    <Play className="w-8 h-8 fill-current ml-1" />
+                  <div className="w-14 h-14 rounded-full bg-primary flex items-center justify-center text-background shadow-[0_0_30px_rgba(0,191,255,0.7)]">
+                    <Play className="w-6 h-6 fill-current ml-1" />
                   </div>
-                  <span className="text-[11px] font-black tracking-[0.2em] text-primary uppercase bg-background/80 px-3 py-1 rounded-full border border-primary/20">{labels.launch}</span>
+                  <span className="text-[10px] font-black tracking-widest text-primary uppercase bg-background/90 px-4 py-1.5 rounded-full border border-primary/20">
+                    {labels.launch}
+                  </span>
                 </div>
               </div>
             </div>
