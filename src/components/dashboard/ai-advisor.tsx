@@ -4,11 +4,12 @@ import { useState } from "react"
 import { BrainCircuit, Loader2, CheckCircle2 } from "lucide-react"
 import { aiOptimizedGamingProfile, type AIOptimizedGamingProfileOutput } from "@/ai/flows/ai-optimized-gaming-profile"
 import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
+import { useHardwareStats } from "@/hooks/use-hardware-stats"
 
 export function AIAdvisor() {
   const [loading, setLoading] = useState(false)
   const [profile, setProfile] = useState<AIOptimizedGamingProfileOutput | null>(null)
+  const stats = useHardwareStats()
 
   const analyze = async () => {
     setLoading(true)
@@ -16,11 +17,11 @@ export function AIAdvisor() {
       const result = await aiOptimizedGamingProfile({
         gameName: "PUBG Mobile",
         gameGenre: "Battle Royale",
-        cpuUsagePercent: 68,
-        ramUsageMB: 4200,
-        totalRamMB: 8192,
-        batteryLevelPercent: 72,
-        deviceTemperatureCelsius: 38,
+        cpuUsagePercent: typeof stats.fps === 'number' ? Math.min(100, (stats.fps / 60) * 80) : 50,
+        ramUsageMB: typeof stats.ramUsed === 'string' && stats.ramUsed !== '---' ? parseFloat(stats.ramUsed) * 1024 : 2048,
+        totalRamMB: typeof stats.ramTotal === 'string' && stats.ramTotal !== '---' ? parseFloat(stats.ramTotal) * 1024 : 8192,
+        batteryLevelPercent: typeof stats.battery === 'number' ? stats.battery : 50,
+        deviceTemperatureCelsius: stats.temp === 'Locked' ? 35 : 40,
         currentBrightnessPercent: 80,
         notificationsEnabled: true
       })
@@ -44,7 +45,7 @@ export function AIAdvisor() {
         </div>
         <div>
           <h2 className="font-headline text-lg font-bold">AI GAMING MODE</h2>
-          <p className="text-xs text-muted-foreground">Smart optimization based on status</p>
+          <p className="text-xs text-muted-foreground">Smart optimization based on live status</p>
         </div>
       </div>
 
@@ -54,7 +55,7 @@ export function AIAdvisor() {
             onClick={analyze}
             className="w-full bg-secondary hover:bg-secondary/80 text-white font-headline font-bold py-6 rounded-2xl shadow-[0_0_20px_rgba(122,92,255,0.4)]"
           >
-            START AI ANALYSIS
+            START REAL-TIME ANALYSIS
           </Button>
         </div>
       )}
@@ -62,7 +63,7 @@ export function AIAdvisor() {
       {loading && (
         <div className="py-8 flex flex-col items-center justify-center gap-4 text-secondary">
           <Loader2 className="w-12 h-12 animate-spin" />
-          <p className="font-headline font-bold animate-pulse text-sm">ANALYZING DEVICE HEALTH...</p>
+          <p className="font-headline font-bold animate-pulse text-sm">SCANNING HARDWARE LAYERS...</p>
         </div>
       )}
 

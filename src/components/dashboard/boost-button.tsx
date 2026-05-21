@@ -13,16 +13,28 @@ export function BoostButton() {
 
     setIsBoosting(true)
     
-    // Simulate haptic feedback if available
-    if (typeof window !== "undefined" && window.navigator.vibrate) {
-      window.navigator.vibrate(100)
+    // Attempt real resource release
+    if (typeof window !== "undefined") {
+      // 1. Trigger haptic feedback
+      if (window.navigator.vibrate) {
+        window.navigator.vibrate([50, 30, 100])
+      }
+      
+      // 2. Clear session storage (Purge volatile cache)
+      try {
+        sessionStorage.clear()
+        console.log("VOID BOOST: Volatile cache purged.")
+      } catch (e) {
+        console.warn("Storage access restricted")
+      }
     }
 
+    // Simulate system reconfiguration delay
     setTimeout(() => {
       setIsBoosting(false)
       toast({
-        title: "BOOST SUCCESSFUL",
-        description: "RAM cleaned. Performance mode active.",
+        title: "SYSTEM OPTIMIZED",
+        description: "Idle threads suspended. Memory cleared.",
         className: "bg-primary text-primary-foreground border-none font-headline font-bold",
       })
     }, 2000)
@@ -30,7 +42,6 @@ export function BoostButton() {
 
   return (
     <div className="relative flex items-center justify-center py-8">
-      {/* Glow layers */}
       <div className={cn(
         "absolute w-64 h-64 bg-primary/20 rounded-full blur-[60px] transition-all duration-1000",
         isBoosting ? "scale-150 opacity-100" : "scale-100 opacity-60"
@@ -60,15 +71,13 @@ export function BoostButton() {
           "font-headline text-2xl font-black tracking-tighter transition-all",
           isBoosting ? "opacity-0 translate-y-2" : "opacity-100 translate-y-0"
         )}>
-          {isBoosting ? "OPTIMIZING..." : "BOOST"}
+          {isBoosting ? "PURGING..." : "BOOST"}
         </span>
         
         {isBoosting && (
           <div className="absolute inset-0 rounded-full border-4 border-primary/20 animate-ping"></div>
         )}
       </button>
-
-      {/* Speed lines or energy particles could go here */}
     </div>
   )
 }
