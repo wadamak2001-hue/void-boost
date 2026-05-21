@@ -9,6 +9,7 @@ import { AIAdvisor } from "@/components/dashboard/ai-advisor"
 import { SidebarTools } from "@/components/dashboard/sidebar-tools"
 import { DebugConsole } from "@/components/dashboard/debug-console"
 import { GitHubDeployer } from "@/components/dashboard/github-deployer"
+import { AppOpenAd } from "@/components/ads/app-open-ad"
 import { Shield, User, Cpu, Globe, Cloud } from "lucide-react"
 import { Toaster } from "@/components/ui/toaster"
 import { logger } from "@/hooks/use-debug-logs"
@@ -51,7 +52,10 @@ export const DICTIONARY = {
     refresh: "REFRESH LIST",
     report: "REPORT BUG",
     cloudTitle: "CLOUD APK BUILDER",
-    cloudDesc: "Push code to GitHub to build APK"
+    cloudDesc: "Push code to GitHub to build APK",
+    adSettings: "AdMob Settings",
+    adId: "AdMob App ID",
+    unitId: "Ad Unit ID (App Open)"
   },
   ar: {
     brand: "فويد بوست",
@@ -88,7 +92,10 @@ export const DICTIONARY = {
     refresh: "تحديث القائمة",
     report: "إبلاغ عن خطأ",
     cloudTitle: "باني APK السحابي",
-    cloudDesc: "ارفع الكود إلى GitHub لبناء APK"
+    cloudDesc: "ارفع الكود إلى GitHub لبناء APK",
+    adSettings: "إعدادات AdMob",
+    adId: "معرف تطبيق AdMob",
+    unitId: "معرف وحدة الإعلان"
   }
 }
 
@@ -96,17 +103,22 @@ export default function Home() {
   const [lang, setLang] = useState<Language>('en')
   const [hasPermission, setHasPermission] = useState(false)
   const [isReady, setIsReady] = useState(false)
+  const [showAd, setShowAd] = useState(true)
   const [debugVisible, setDebugVisible] = useState(false)
   const [logoTaps, setLogoTaps] = useState(0)
+  const [adConfig, setAdConfig] = useState({ appId: "", unitId: "" })
 
   useEffect(() => {
     const savedLang = localStorage.getItem('void_boost_lang') as Language
     const savedPerm = localStorage.getItem('void_boost_perm') === 'true'
+    const savedAdAppId = localStorage.getItem('void_boost_ad_app_id') || ""
+    const savedAdUnitId = localStorage.getItem('void_boost_ad_unit_id') || ""
     
     if (savedLang) setLang(savedLang)
     if (savedPerm) setHasPermission(savedPerm)
+    setAdConfig({ appId: savedAdAppId, unitId: savedAdUnitId })
     
-    logger.add(`App Boot: Lang=${savedLang || 'en'}, Perm=${savedPerm}`, 'info')
+    logger.add(`App Boot: Lang=${savedLang || 'en'}, AdMob Configured=${!!savedAdUnitId}`, 'info')
     logger.add('Capacitor Native Bridge: Initializing...', 'success')
     setIsReady(true)
   }, [])
@@ -144,6 +156,10 @@ export default function Home() {
   const t = DICTIONARY[lang]
 
   if (!isReady) return <div className="min-h-screen bg-[#0A0C12]" />;
+
+  if (showAd) {
+    return <AppOpenAd adUnitId={adConfig.unitId} onClose={() => setShowAd(false)} />
+  }
 
   return (
     <div 
