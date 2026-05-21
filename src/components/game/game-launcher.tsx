@@ -2,7 +2,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Play, Plus, Trash2, Search, Loader2, Package, RefreshCw } from "lucide-react"
+import { Play, Plus, Trash2, Search, Loader2, Package, RefreshCw, Smartphone } from "lucide-react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import {
@@ -12,8 +12,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
 import { PlaceHolderImages } from "@/lib/placeholder-images"
 import { cn } from "@/lib/utils"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 interface Game {
   id: string
@@ -27,39 +29,39 @@ interface GameLauncherProps {
   labels: any
 }
 
-// Predefined list of high-priority game packages for discovery simulation
-const DISCOVERABLE_GAMES = [
+// Database of common game packages for the "Discovery" simulation
+const COMMON_GAME_PACKAGES = [
   { name: "Free Fire", packageName: "com.dts.freefireth", genre: "Battle Royale", iconId: "game-ff" },
   { name: "PUBG Mobile", packageName: "com.tencent.ig", genre: "Battle Royale", iconId: "game-pubg" },
   { name: "eFootball", packageName: "jp.konami.pesam", genre: "Sports", iconId: "game-efootball" },
   { name: "Call of Duty: Mobile", packageName: "com.activision.callofduty.shooter", genre: "Action", iconId: "game-codm" },
   { name: "Genshin Impact", packageName: "com.miHoYo.GenshinImpact", genre: "RPG", iconId: "game-ff" },
   { name: "Mobile Legends", packageName: "com.mobile.legends", genre: "MOBA", iconId: "game-codm" },
+  { name: "Roblox", packageName: "com.roblox.client", genre: "Sandbox", iconId: "game-ff" },
+  { name: "Minecraft", packageName: "com.mojang.minecraftpe", genre: "Sandbox", iconId: "game-pubg" },
 ]
 
 export function GameLauncher({ labels }: GameLauncherProps) {
+  // Start with an empty registry as requested
   const [games, setGames] = useState<Game[]>([])
   const [isScanning, setIsScanning] = useState(false)
   const [isSyncing, setIsSyncing] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
-
-  // Simulation: Automated Registry Sync on mount
-  useEffect(() => {
-    handleSyncRegistry()
-  }, [])
+  const [searchQuery, setSearchQuery] = useState("")
+  const [manualName, setManualName] = useState("")
+  const [manualPackage, setManualPackage] = useState("")
 
   const handleSyncRegistry = () => {
     setIsSyncing(true)
     setTimeout(() => {
-      // Logic would go here to check if installed apps still match the registry
       setIsSyncing(false)
-    }, 1200)
+    }, 1000)
   }
 
-  const handleAddGame = (source: typeof DISCOVERABLE_GAMES[0]) => {
+  const handleAddGame = (source: { name: string; packageName: string; genre: string; iconId?: string }) => {
     if (games.find(g => g.packageName === source.packageName)) return
     
-    const icon = PlaceHolderImages.find(img => img.id === source.iconId)?.imageUrl || PlaceHolderImages[0].imageUrl
+    const icon = PlaceHolderImages.find(img => img.id === (source.iconId || "game-ff"))?.imageUrl || PlaceHolderImages[0].imageUrl
     
     const newGame: Game = {
       id: Math.random().toString(36).substring(2, 9),
@@ -68,21 +70,19 @@ export function GameLauncher({ labels }: GameLauncherProps) {
       image: icon,
       genre: source.genre
     }
-    setGames([...games, newGame])
+    setGames(prev => [...prev, newGame])
     setDialogOpen(false)
+    setManualName("")
+    setManualPackage("")
   }
 
-  const handleScan = () => {
-    setIsScanning(true)
-    setTimeout(() => {
-      setIsScanning(false)
-    }, 1500)
-  }
+  const filteredDiscovery = COMMON_GAME_PACKAGES.filter(game => 
+    game.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    game.packageName.toLowerCase().includes(searchQuery.toLowerCase())
+  )
 
   const handleLaunch = (packageName: string) => {
-    // Deep-Link Launch Architecture using the requested Intent protocol
     const intentUrl = `intent://launch#Intent;package=${packageName};end`
-    
     if (typeof window !== "undefined") {
       window.location.href = intentUrl
       console.log(`[VOID BOOST] Executing Deep-Link: ${intentUrl}`)
@@ -113,10 +113,7 @@ export function GameLauncher({ labels }: GameLauncherProps) {
               <RefreshCw className={cn("w-4 h-4", isSyncing && "animate-spin")} />
             </Button>
 
-          <Dialog open={dialogOpen} onOpenChange={(val) => {
-            setDialogOpen(val)
-            if (val) handleScan()
-          }}>
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
               <Button 
                 variant="ghost" 
@@ -127,59 +124,107 @@ export function GameLauncher({ labels }: GameLauncherProps) {
                 {labels.add}
               </Button>
             </DialogTrigger>
-            <DialogContent className="glass border-white/10 max-w-sm mx-auto rounded-3xl">
-              <DialogHeader>
-                <DialogTitle className="font-headline font-black text-center text-primary uppercase tracking-widest text-sm">
-                  {labels.discovery}
-                </DialogTitle>
-              </DialogHeader>
-              
-              <div className="space-y-4 py-4 max-h-[400px] overflow-y-auto custom-scrollbar">
-                {isScanning ? (
-                  <div className="py-12 flex flex-col items-center justify-center gap-4 text-primary">
-                    <Loader2 className="w-12 h-12 animate-spin opacity-50" />
-                    <p className="font-headline font-bold text-xs animate-pulse tracking-widest">{labels.scan}</p>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-2 mb-2">
-                      {labels.found} ({DISCOVERABLE_GAMES.length})
-                    </p>
-                    {DISCOVERABLE_GAMES.map((game) => (
-                      <button
-                        key={game.packageName}
-                        onClick={() => handleAddGame(game)}
-                        className="w-full flex items-center justify-between p-3 rounded-2xl glass hover:bg-primary/5 border border-transparent hover:border-primary/20 transition-all group"
+            <DialogContent className="glass border-white/10 max-w-sm mx-auto rounded-3xl p-0 overflow-hidden">
+              <Tabs defaultValue="discovery" className="w-full">
+                <div className="p-6 pb-2">
+                  <DialogHeader className="mb-4">
+                    <DialogTitle className="font-headline font-black text-center text-primary uppercase tracking-widest text-sm">
+                      {labels.discovery}
+                    </DialogTitle>
+                  </DialogHeader>
+                  <TabsList className="grid w-full grid-cols-2 bg-white/5 rounded-xl">
+                    <TabsTrigger value="discovery" className="text-[10px] font-bold uppercase tracking-wider">Search</TabsTrigger>
+                    <TabsTrigger value="manual" className="text-[10px] font-bold uppercase tracking-wider">Manual</TabsTrigger>
+                  </TabsList>
+                </div>
+
+                <div className="p-6 pt-2 h-[400px] overflow-y-auto custom-scrollbar">
+                  <TabsContent value="discovery" className="space-y-4 m-0">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input 
+                        placeholder="Search system packages..." 
+                        className="pl-10 bg-white/5 border-white/10 rounded-xl text-xs h-10"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-2">
+                        {searchQuery ? `Found (${filteredDiscovery.length})` : 'Popular Suggestions'}
+                      </p>
+                      {filteredDiscovery.map((game) => (
+                        <button
+                          key={game.packageName}
+                          onClick={() => handleAddGame(game)}
+                          className="w-full flex items-center justify-between p-3 rounded-2xl glass hover:bg-primary/5 border border-transparent hover:border-primary/20 transition-all group"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                              <Package className="w-5 h-5" />
+                            </div>
+                            <div className="text-left rtl:text-right">
+                              <p className="text-xs font-bold">{game.name}</p>
+                              <p className="text-[9px] text-muted-foreground font-mono">{game.packageName}</p>
+                            </div>
+                          </div>
+                          <Plus className="w-4 h-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </button>
+                      ))}
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="manual" className="space-y-6 m-0">
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-2">Game Name</label>
+                        <Input 
+                          placeholder="e.g., Free Fire" 
+                          className="bg-white/5 border-white/10 rounded-xl text-xs"
+                          value={manualName}
+                          onChange={(e) => setManualName(e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-2">Package Name</label>
+                        <Input 
+                          placeholder="com.example.game" 
+                          className="bg-white/5 border-white/10 rounded-xl text-xs"
+                          value={manualPackage}
+                          onChange={(e) => setManualPackage(e.target.value)}
+                        />
+                      </div>
+                      <Button 
+                        className="w-full bg-primary text-background font-black rounded-xl h-12 mt-4"
+                        disabled={!manualName || !manualPackage}
+                        onClick={() => handleAddGame({ name: manualName, packageName: manualPackage, genre: "Manual Entry" })}
                       >
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
-                            <Package className="w-5 h-5" />
-                          </div>
-                          <div className="text-left rtl:text-right">
-                            <p className="text-xs font-bold">{game.name}</p>
-                            <p className="text-[9px] text-muted-foreground font-mono">{game.packageName}</p>
-                          </div>
-                        </div>
-                        <Plus className="w-4 h-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
+                        ADD TO REGISTRY
+                      </Button>
+                    </div>
+                  </TabsContent>
+                </div>
+              </Tabs>
             </DialogContent>
           </Dialog>
         </div>
       </div>
 
       {games.length === 0 ? (
-        <div className="glass p-12 rounded-2xl flex flex-col items-center justify-center gap-4 text-muted-foreground opacity-50 border-dashed border-2">
-          <Search className="w-12 h-12" />
-          <p className="font-headline font-bold text-xs tracking-widest uppercase">{labels.noGames}</p>
+        <div className="glass p-12 rounded-3xl flex flex-col items-center justify-center gap-4 text-muted-foreground border-dashed border-2 border-white/5">
+          <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center">
+            <Smartphone className="w-8 h-8 opacity-20" />
+          </div>
+          <div className="text-center space-y-1">
+            <p className="font-headline font-black text-xs tracking-widest uppercase">{labels.noGames}</p>
+            <p className="text-[9px] uppercase tracking-tighter opacity-50">Neural Registry Empty</p>
+          </div>
           <Button 
             variant="outline" 
             size="sm" 
             onClick={() => setDialogOpen(true)}
-            className="border-primary/30 text-primary mt-2"
+            className="border-primary/30 text-primary mt-2 rounded-xl"
           >
             {labels.add}
           </Button>
