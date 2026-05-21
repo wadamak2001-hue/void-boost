@@ -29,7 +29,6 @@ interface GameLauncherProps {
   labels: any
 }
 
-// Database of common game packages for the "Discovery" simulation
 const COMMON_GAME_PACKAGES = [
   { name: "Free Fire", packageName: "com.dts.freefireth", genre: "Battle Royale", iconId: "game-ff" },
   { name: "PUBG Mobile", packageName: "com.tencent.ig", genre: "Battle Royale", iconId: "game-pubg" },
@@ -42,14 +41,29 @@ const COMMON_GAME_PACKAGES = [
 ]
 
 export function GameLauncher({ labels }: GameLauncherProps) {
-  // Start with an empty registry as requested
   const [games, setGames] = useState<Game[]>([])
-  const [isScanning, setIsScanning] = useState(false)
   const [isSyncing, setIsSyncing] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [manualName, setManualName] = useState("")
   const [manualPackage, setManualPackage] = useState("")
+
+  // Load games from localStorage on mount
+  useEffect(() => {
+    const savedGames = localStorage.getItem('void_boost_registry')
+    if (savedGames) {
+      try {
+        setGames(JSON.parse(savedGames))
+      } catch (e) {
+        console.error("Failed to load registry", e)
+      }
+    }
+  }, [])
+
+  // Save games to localStorage when registry changes
+  useEffect(() => {
+    localStorage.setItem('void_boost_registry', JSON.stringify(games))
+  }, [games])
 
   const handleSyncRegistry = () => {
     setIsSyncing(true)
@@ -85,7 +99,6 @@ export function GameLauncher({ labels }: GameLauncherProps) {
     const intentUrl = `intent://launch#Intent;package=${packageName};end`
     if (typeof window !== "undefined") {
       window.location.href = intentUrl
-      console.log(`[VOID BOOST] Executing Deep-Link: ${intentUrl}`)
     }
   }
 

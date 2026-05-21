@@ -84,19 +84,19 @@ export const DICTIONARY = {
 }
 
 export default function Home() {
-  // Initialize from LocalStorage for persistence
   const [lang, setLang] = useState<Language>('en')
   const [hasPermission, setHasPermission] = useState(false)
   const [isReady, setIsReady] = useState(false)
 
+  // Initialize from LocalStorage for persistence
   useEffect(() => {
-    // Load persisted states
     const savedLang = localStorage.getItem('void_boost_lang') as Language
     const savedPerm = localStorage.getItem('void_boost_perm') === 'true'
     
     if (savedLang) setLang(savedLang)
     if (savedPerm) setHasPermission(savedPerm)
     
+    // Mark as ready after sync to prevent flickering
     setIsReady(true)
   }, [])
 
@@ -113,7 +113,8 @@ export default function Home() {
 
   const t = DICTIONARY[lang]
 
-  if (!isReady) return null;
+  // Prevent flicker during sync
+  if (!isReady) return <div className="min-h-screen bg-[#0A0C12]" />;
 
   return (
     <div 
@@ -152,7 +153,7 @@ export default function Home() {
       </header>
 
       <main className="flex-1 p-6 space-y-8 overflow-y-auto custom-scrollbar relative z-10">
-        <section className="animate-in fade-in slide-in-from-top-2 duration-200">
+        <section className="animate-in fade-in duration-200">
           <DeviceMonitor hasPermission={hasPermission} setHasPermission={handlePermissionChange} labels={t} />
         </section>
 
