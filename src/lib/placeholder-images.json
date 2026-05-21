@@ -1,3 +1,28 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "game-pubg",
+      "description": "PUBG Mobile visual",
+      "imageUrl": "https://picsum.photos/seed/pubg/400/225",
+      "imageHint": "gaming battleground"
+    },
+    {
+      "id": "game-ff",
+      "description": "Free Fire visual",
+      "imageUrl": "https://picsum.photos/seed/freefire/400/225",
+      "imageHint": "action shooter"
+    },
+    {
+      "id": "game-efootball",
+      "description": "eFootball visual",
+      "imageUrl": "https://picsum.photos/seed/soccer/400/225",
+      "imageHint": "sports soccer"
+    },
+    {
+      "id": "game-codm",
+      "description": "COD Mobile visual",
+      "imageUrl": "https://picsum.photos/seed/cod/400/225",
+      "imageHint": "military combat"
+    }
+  ]
 }
