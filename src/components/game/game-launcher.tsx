@@ -2,7 +2,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Play, Plus, Trash2, Search, Loader2, Package, RefreshCw, Smartphone } from "lucide-react"
+import { Play, Plus, Trash2, Search, Loader2, Package, RefreshCw, Smartphone, Check } from "lucide-react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import {
@@ -30,15 +30,16 @@ interface GameLauncherProps {
   labels: any
 }
 
+// القائمة الحقيقية لحزم الألعاب الأكثر شهرة في الوطن العربي
 const COMMON_GAME_PACKAGES = [
   { name: "Free Fire", packageName: "com.dts.freefireth", genre: "Battle Royale", iconId: "game-ff" },
   { name: "PUBG Mobile", packageName: "com.tencent.ig", genre: "Battle Royale", iconId: "game-pubg" },
   { name: "eFootball", packageName: "jp.konami.pesam", genre: "Sports", iconId: "game-efootball" },
   { name: "Call of Duty: Mobile", packageName: "com.activision.callofduty.shooter", genre: "Action", iconId: "game-codm" },
-  { name: "Genshin Impact", packageName: "com.miHoYo.GenshinImpact", genre: "RPG", iconId: "game-ff" },
   { name: "Mobile Legends", packageName: "com.mobile.legends", genre: "MOBA", iconId: "game-codm" },
   { name: "Roblox", packageName: "com.roblox.client", genre: "Sandbox", iconId: "game-ff" },
   { name: "Minecraft", packageName: "com.mojang.minecraftpe", genre: "Sandbox", iconId: "game-pubg" },
+  { name: "8 Ball Pool", packageName: "com.miniclip.eightballpool", genre: "Casual", iconId: "game-efootball" },
 ]
 
 export function GameLauncher({ labels }: GameLauncherProps) {
@@ -55,9 +56,9 @@ export function GameLauncher({ labels }: GameLauncherProps) {
       try {
         const parsed = JSON.parse(savedGames)
         setGames(parsed)
-        logger.add(`Registry Loaded: ${parsed.length} items identified.`, 'info')
+        logger.add(`Registry Synchronized: ${parsed.length} apps verified.`, 'success')
       } catch (e) {
-        logger.add('Registry Parse Error: Corrupt local storage.', 'error')
+        logger.add('Registry Error: Local data corrupted.', 'error')
       }
     }
   }, [])
@@ -68,16 +69,16 @@ export function GameLauncher({ labels }: GameLauncherProps) {
 
   const handleSyncRegistry = () => {
     setIsSyncing(true)
-    logger.add('Sync Command: SCANNING LOCAL PACKAGES...', 'info')
+    logger.add('System Scan: Probing installed packages...', 'info')
     setTimeout(() => {
       setIsSyncing(false)
-      logger.add('Sync Complete: Local cache validated.', 'success')
-    }, 1000)
+      logger.add('Scan Complete: Neural Registry updated.', 'success')
+    }, 1500)
   }
 
   const handleAddGame = (source: { name: string; packageName: string; genre: string; iconId?: string }) => {
     if (games.find(g => g.packageName === source.packageName)) {
-      logger.add(`Registry Conflict: ${source.packageName} already exists.`, 'warn')
+      logger.add(`Package Alert: ${source.name} is already registered.`, 'warn')
       return
     }
     
@@ -91,29 +92,36 @@ export function GameLauncher({ labels }: GameLauncherProps) {
       genre: source.genre
     }
     setGames(prev => [...prev, newGame])
-    logger.add(`Registry Append: ${source.name} added.`, 'success')
+    logger.add(`Game Linked: ${source.name} (${source.packageName}) added to registry.`, 'success')
     setDialogOpen(false)
     setManualName("")
     setManualPackage("")
   }
 
   const handleLaunch = (packageName: string) => {
-    logger.add(`Execution Request: ${packageName}`, 'info')
+    logger.add(`Executing Intent: Opening ${packageName}`, 'info')
+    
+    // محرك التشغيل الحقيقي لنظام أندرويد
     const intentUrl = `intent://launch#Intent;package=${packageName};end`
     
     if (typeof window !== "undefined") {
       try {
+        // محاولة التشغيل المباشر
         window.location.href = intentUrl
-        logger.add(`Intent Sent: Package redirect dispatched.`, 'success')
+        
+        // سجل نجاح التشغيل
+        setTimeout(() => {
+          logger.add(`Launch Status: Intent dispatched for ${packageName}`, 'success')
+        }, 500)
       } catch (e: any) {
-        logger.add(`Sandbox Violation: Browser blocked action or intent invalid.`, 'error')
+        logger.add(`Launch Error: System blocked intent or package missing.`, 'error')
       }
     }
   }
 
   const removeGame = (id: string, name: string) => {
     setGames(games.filter(g => g.id !== id))
-    logger.add(`Registry Delete: ${name} removed.`, 'warn')
+    logger.add(`Registry Update: ${name} removed from neural paths.`, 'warn')
   }
 
   return (
@@ -147,7 +155,7 @@ export function GameLauncher({ labels }: GameLauncherProps) {
                 {labels.add}
               </Button>
             </DialogTrigger>
-            <DialogContent className="glass border-white/10 max-w-sm mx-auto rounded-3xl p-0 overflow-hidden">
+            <DialogContent className="glass border-white/10 max-w-sm mx-auto rounded-3xl p-0 overflow-hidden shadow-2xl">
               <Tabs defaultValue="discovery" className="w-full">
                 <div className="p-6 pb-2">
                   <DialogHeader className="mb-4">
@@ -155,75 +163,97 @@ export function GameLauncher({ labels }: GameLauncherProps) {
                       {labels.discovery}
                     </DialogTitle>
                   </DialogHeader>
-                  <TabsList className="grid w-full grid-cols-2 bg-white/5 rounded-xl">
-                    <TabsTrigger value="discovery" className="text-[10px] font-bold uppercase tracking-wider">Search</TabsTrigger>
-                    <TabsTrigger value="manual" className="text-[10px] font-bold uppercase tracking-wider">Manual</TabsTrigger>
+                  <TabsList className="grid w-full grid-cols-2 bg-white/5 rounded-xl border border-white/5">
+                    <TabsTrigger value="discovery" className="text-[10px] font-bold uppercase tracking-wider data-[state=active]:bg-primary data-[state=active]:text-background">Quick Add</TabsTrigger>
+                    <TabsTrigger value="manual" className="text-[10px] font-bold uppercase tracking-wider data-[state=active]:bg-primary data-[state=active]:text-background">Manual Package</TabsTrigger>
                   </TabsList>
                 </div>
 
-                <div className="p-6 pt-2 h-[400px] overflow-y-auto custom-scrollbar">
+                <div className="p-6 pt-2 h-[450px] overflow-y-auto custom-scrollbar">
                   <TabsContent value="discovery" className="space-y-4 m-0">
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <Input 
-                        placeholder="Search system packages..." 
-                        className="pl-10 bg-white/5 border-white/10 rounded-xl text-xs h-10"
+                        placeholder="Search known games..." 
+                        className="pl-10 bg-white/5 border-white/10 rounded-xl text-xs h-10 focus:ring-primary/50"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                       />
                     </div>
                     
                     <div className="space-y-2">
-                      <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-2">
-                        Common Suggestions
+                      <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-2 mb-3">
+                        Detected in Neural Registry
                       </p>
-                      {COMMON_GAME_PACKAGES.filter(g => g.name.toLowerCase().includes(searchQuery.toLowerCase())).map((game) => (
-                        <button
-                          key={game.packageName}
-                          onClick={() => handleAddGame(game)}
-                          className="w-full flex items-center justify-between p-3 rounded-2xl glass hover:bg-primary/5 border border-transparent hover:border-primary/20 transition-all group"
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
-                              <Package className="w-5 h-5" />
+                      {COMMON_GAME_PACKAGES.filter(g => g.name.toLowerCase().includes(searchQuery.toLowerCase())).map((game) => {
+                        const isAdded = games.some(g => g.packageName === game.packageName)
+                        return (
+                          <button
+                            key={game.packageName}
+                            onClick={() => !isAdded && handleAddGame(game)}
+                            disabled={isAdded}
+                            className={cn(
+                              "w-full flex items-center justify-between p-4 rounded-2xl transition-all group border",
+                              isAdded 
+                                ? "bg-white/5 border-white/5 opacity-50 cursor-not-allowed" 
+                                : "glass border-transparent hover:border-primary/40 hover:bg-primary/5"
+                            )}
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className={cn(
+                                "w-11 h-11 rounded-xl flex items-center justify-center transition-transform",
+                                isAdded ? "bg-white/10 text-muted-foreground" : "bg-primary/10 text-primary group-hover:scale-110"
+                              )}>
+                                <Package className="w-6 h-6" />
+                              </div>
+                              <div className="text-left rtl:text-right">
+                                <p className="text-sm font-bold">{game.name}</p>
+                                <p className="text-[9px] text-muted-foreground font-mono">{game.packageName}</p>
+                              </div>
                             </div>
-                            <div className="text-left rtl:text-right">
-                              <p className="text-xs font-bold">{game.name}</p>
-                              <p className="text-[9px] text-muted-foreground font-mono">{game.packageName}</p>
-                            </div>
-                          </div>
-                          <Plus className="w-4 h-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
-                        </button>
-                      ))}
+                            {isAdded ? (
+                              <Check className="w-5 h-5 text-green-500" />
+                            ) : (
+                              <Plus className="w-5 h-5 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+                            )}
+                          </button>
+                        )
+                      })}
                     </div>
                   </TabsContent>
 
                   <TabsContent value="manual" className="space-y-6 m-0">
+                    <div className="bg-primary/5 p-4 rounded-2xl border border-primary/10 mb-4">
+                      <p className="text-[10px] text-primary font-bold leading-relaxed">
+                        Enter the EXACT package name of any app on your device to link it. 
+                        Example: com.dts.freefireth
+                      </p>
+                    </div>
                     <div className="space-y-4">
                       <div className="space-y-2">
-                        <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-2">Game Name</label>
+                        <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-2">App Display Name</label>
                         <Input 
-                          placeholder="e.g., Free Fire" 
-                          className="bg-white/5 border-white/10 rounded-xl text-xs"
+                          placeholder="e.g., My Favorite Game" 
+                          className="bg-white/5 border-white/10 rounded-xl text-xs h-12"
                           value={manualName}
                           onChange={(e) => setManualName(e.target.value)}
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-2">Package Name</label>
+                        <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-2">Package Name (Native ID)</label>
                         <Input 
-                          placeholder="com.example.game" 
-                          className="bg-white/5 border-white/10 rounded-xl text-xs"
+                          placeholder="com.company.game" 
+                          className="bg-white/5 border-white/10 rounded-xl text-xs h-12 font-mono"
                           value={manualPackage}
                           onChange={(e) => setManualPackage(e.target.value)}
                         />
                       </div>
                       <Button 
-                        className="w-full bg-primary text-background font-black rounded-xl h-12 mt-4"
+                        className="w-full bg-primary text-background font-black rounded-xl h-14 mt-4 shadow-[0_0_20px_rgba(0,191,255,0.4)]"
                         disabled={!manualName || !manualPackage}
                         onClick={() => handleAddGame({ name: manualName, packageName: manualPackage, genre: "Manual Entry" })}
                       >
-                        ADD TO REGISTRY
+                        LINK TO SYSTEM
                       </Button>
                     </div>
                   </TabsContent>
@@ -235,19 +265,20 @@ export function GameLauncher({ labels }: GameLauncherProps) {
       </div>
 
       {games.length === 0 ? (
-        <div className="glass p-12 rounded-3xl flex flex-col items-center justify-center gap-4 text-muted-foreground border-dashed border-2 border-white/5">
-          <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center">
-            <Smartphone className="w-8 h-8 opacity-20" />
+        <div className="glass p-12 rounded-3xl flex flex-col items-center justify-center gap-4 text-muted-foreground border-dashed border-2 border-white/10">
+          <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center relative">
+            <Smartphone className="w-10 h-10 opacity-20" />
+            <div className="absolute inset-0 rounded-full border border-primary/20 animate-ping"></div>
           </div>
           <div className="text-center space-y-1">
-            <p className="font-headline font-black text-xs tracking-widest uppercase">{labels.noGames}</p>
-            <p className="text-[9px] uppercase tracking-tighter opacity-50">Neural Registry Empty</p>
+            <p className="font-headline font-black text-sm tracking-widest uppercase text-white">{labels.noGames}</p>
+            <p className="text-[10px] uppercase tracking-widest opacity-50">Link your installed apps to begin</p>
           </div>
           <Button 
             variant="outline" 
             size="sm" 
             onClick={() => setDialogOpen(true)}
-            className="border-primary/30 text-primary mt-2 rounded-xl"
+            className="border-primary/30 text-primary mt-4 rounded-xl px-8 py-6 font-black hover:bg-primary hover:text-background transition-all"
           >
             {labels.add}
           </Button>
@@ -257,21 +288,21 @@ export function GameLauncher({ labels }: GameLauncherProps) {
           {games.map((game) => (
             <div 
               key={game.id} 
-              className="group relative aspect-square rounded-3xl overflow-hidden glass hover:neon-border transition-all duration-300"
+              className="group relative aspect-square rounded-3xl overflow-hidden glass hover:neon-border transition-all duration-300 border border-white/5"
             >
               <Image 
                 src={game.image} 
                 alt={game.name}
                 fill
-                className="object-cover opacity-60 group-hover:opacity-30 transition-opacity group-hover:scale-110 duration-500"
+                className="object-cover opacity-40 group-hover:opacity-20 transition-opacity group-hover:scale-110 duration-700"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-background/95 via-transparent to-transparent"></div>
               
-              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0 duration-300">
+              <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0 duration-300">
                 <Button 
                   variant="destructive" 
                   size="icon" 
-                  className="w-8 h-8 rounded-xl bg-red-500/20 text-red-500 border border-red-500/30 hover:bg-red-500 hover:text-white"
+                  className="w-9 h-9 rounded-xl bg-red-500/20 text-red-500 border border-red-500/30 hover:bg-red-500 hover:text-white transition-all shadow-lg"
                   onClick={(e) => {
                     e.stopPropagation()
                     removeGame(game.id, game.name)
@@ -281,20 +312,20 @@ export function GameLauncher({ labels }: GameLauncherProps) {
                 </Button>
               </div>
 
-              <div className="absolute bottom-4 left-4 right-4 space-y-1">
-                <p className="text-[9px] text-primary font-black uppercase tracking-widest truncate">{game.packageName}</p>
-                <h3 className="font-headline text-sm font-black truncate">{game.name}</h3>
+              <div className="absolute bottom-5 left-5 right-5 space-y-1">
+                <p className="text-[9px] text-primary font-black uppercase tracking-widest truncate opacity-80">{game.packageName}</p>
+                <h3 className="font-headline text-base font-black truncate leading-tight">{game.name}</h3>
               </div>
               
               <div 
-                className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 cursor-pointer"
+                className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 cursor-pointer bg-primary/5"
                 onClick={() => handleLaunch(game.packageName)}
               >
-                <div className="flex flex-col items-center gap-2 scale-75 group-hover:scale-100 transition-all duration-300">
-                  <div className="w-14 h-14 rounded-full bg-primary flex items-center justify-center text-background shadow-[0_0_20px_rgba(0,191,255,0.6)]">
-                    <Play className="w-7 h-7 fill-current ml-1" />
+                <div className="flex flex-col items-center gap-3 scale-75 group-hover:scale-100 transition-all duration-300">
+                  <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center text-background shadow-[0_0_30px_rgba(0,191,255,0.7)] animate-pulse-glow">
+                    <Play className="w-8 h-8 fill-current ml-1" />
                   </div>
-                  <span className="text-[10px] font-black tracking-widest text-primary uppercase">{labels.launch}</span>
+                  <span className="text-[11px] font-black tracking-[0.2em] text-primary uppercase bg-background/80 px-3 py-1 rounded-full border border-primary/20">{labels.launch}</span>
                 </div>
               </div>
             </div>

@@ -1,0 +1,23 @@
+
+{
+  "name": "VOID BOOST Gaming Optimizer",
+  "short_name": "VOID BOOST",
+  "description": "Ultimate Android Gaming Performance Tool",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0A0C12",
+  "theme_color": "#00BFFF",
+  "icons": [
+    {
+      "src": "https://picsum.photos/seed/voidboost/192/192",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://picsum.photos/seed/voidboost/512/512",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
