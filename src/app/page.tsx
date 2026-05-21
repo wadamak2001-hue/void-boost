@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from "react"
@@ -6,7 +7,7 @@ import { DeviceMonitor } from "@/components/dashboard/device-monitor"
 import { GameLauncher } from "@/components/game/game-launcher"
 import { AIAdvisor } from "@/components/dashboard/ai-advisor"
 import { SidebarTools } from "@/components/dashboard/sidebar-tools"
-import { Shield, Bell, User, Cpu, Globe } from "lucide-react"
+import { Shield, User, Cpu, Globe } from "lucide-react"
 import { Toaster } from "@/components/ui/toaster"
 
 export type Language = 'en' | 'ar';
@@ -21,8 +22,8 @@ export const DICTIONARY = {
     thermal: "THERMAL STATUS",
     heap: "HEAP MEMORY",
     battery: "BATTERY LEVEL",
-    library: "GAME LIBRARY",
-    add: "ADD",
+    library: "NEURAL REGISTRY",
+    add: "ADD GAME",
     noGames: "0 GAMES LINKED",
     aiMode: "AI GAMING MODE",
     aiDesc: "Smart optimization based on live status",
@@ -39,10 +40,12 @@ export const DICTIONARY = {
     dnd: "DND Mode",
     screenshot: "Screenshot",
     record: "Screen Record",
-    scan: "SCANNING SYSTEM...",
-    found: "PACKAGES FOUND",
+    scan: "SCANNING PACKAGES...",
+    found: "GAMES IDENTIFIED",
     launch: "LAUNCH",
-    discovery: "App Discovery"
+    discovery: "System App Discovery",
+    syncing: "SYNCING REGISTRY...",
+    refresh: "REFRESH LIST"
   },
   ar: {
     brand: "فويد بوست",
@@ -53,8 +56,8 @@ export const DICTIONARY = {
     thermal: "الحالة الحرارية",
     heap: "ذاكرة الكومة",
     battery: "مستوى البطارية",
-    library: "مكتبة الألعاب",
-    add: "إضافة",
+    library: "السجل العصبي",
+    add: "إضافة لعبة",
     noGames: "0 ألعاب مرتبطة",
     aiMode: "وضع الألعاب الذكي",
     aiDesc: "تحسين ذكي بناءً على الحالة الحية",
@@ -71,10 +74,12 @@ export const DICTIONARY = {
     dnd: "وضع الهدوء",
     screenshot: "لقطة شاشة",
     record: "تسجيل الشاشة",
-    scan: "جاري فحص النظام...",
-    found: "تم العثور على حزم",
+    scan: "جاري فحص الحزم...",
+    found: "تم تحديد الألعاب",
     launch: "تشغيل",
-    discovery: "اكتشاف التطبيقات"
+    discovery: "اكتشاف تطبيقات النظام",
+    syncing: "جاري مزامنة السجل...",
+    refresh: "تحديث القائمة"
   }
 }
 

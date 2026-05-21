@@ -1,7 +1,8 @@
+
 "use client"
 
-import { useState, useMemo } from "react"
-import { Play, Plus, Trash2, Search, Loader2, Package } from "lucide-react"
+import { useState, useEffect } from "react"
+import { Play, Plus, Trash2, Search, Loader2, Package, RefreshCw } from "lucide-react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import {
@@ -12,6 +13,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { PlaceHolderImages } from "@/lib/placeholder-images"
+import { cn } from "@/lib/utils"
 
 interface Game {
   id: string
@@ -25,6 +27,7 @@ interface GameLauncherProps {
   labels: any
 }
 
+// Predefined list of high-priority game packages for discovery simulation
 const DISCOVERABLE_GAMES = [
   { name: "Free Fire", packageName: "com.dts.freefireth", genre: "Battle Royale", iconId: "game-ff" },
   { name: "PUBG Mobile", packageName: "com.tencent.ig", genre: "Battle Royale", iconId: "game-pubg" },
@@ -37,7 +40,21 @@ const DISCOVERABLE_GAMES = [
 export function GameLauncher({ labels }: GameLauncherProps) {
   const [games, setGames] = useState<Game[]>([])
   const [isScanning, setIsScanning] = useState(false)
+  const [isSyncing, setIsSyncing] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
+
+  // Simulation: Automated Registry Sync on mount
+  useEffect(() => {
+    handleSyncRegistry()
+  }, [])
+
+  const handleSyncRegistry = () => {
+    setIsSyncing(true)
+    setTimeout(() => {
+      // Logic would go here to check if installed apps still match the registry
+      setIsSyncing(false)
+    }, 1200)
+  }
 
   const handleAddGame = (source: typeof DISCOVERABLE_GAMES[0]) => {
     if (games.find(g => g.packageName === source.packageName)) return
@@ -45,7 +62,7 @@ export function GameLauncher({ labels }: GameLauncherProps) {
     const icon = PlaceHolderImages.find(img => img.id === source.iconId)?.imageUrl || PlaceHolderImages[0].imageUrl
     
     const newGame: Game = {
-      id: Math.random().toString(36).substr(2, 9),
+      id: Math.random().toString(36).substring(2, 9),
       name: source.name,
       packageName: source.packageName,
       image: icon,
@@ -63,12 +80,13 @@ export function GameLauncher({ labels }: GameLauncherProps) {
   }
 
   const handleLaunch = (packageName: string) => {
-    // Native Android Intent protocol
-    const intentUrl = `intent://#Intent;scheme=package;package=${packageName};end`
-    window.location.href = intentUrl
+    // Deep-Link Launch Architecture using the requested Intent protocol
+    const intentUrl = `intent://launch#Intent;package=${packageName};end`
     
-    // In-browser feedback
-    console.log(`Executing intent: ${intentUrl}`)
+    if (typeof window !== "undefined") {
+      window.location.href = intentUrl
+      console.log(`[VOID BOOST] Executing Deep-Link: ${intentUrl}`)
+    }
   }
 
   const removeGame = (id: string) => {
@@ -78,63 +96,79 @@ export function GameLauncher({ labels }: GameLauncherProps) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between px-2">
-        <h2 className="font-headline text-lg font-bold uppercase tracking-tight">{labels.library}</h2>
+        <div className="flex items-center gap-2">
+          <h2 className="font-headline text-lg font-bold uppercase tracking-tight">{labels.library}</h2>
+          {isSyncing && <Loader2 className="w-3 h-3 animate-spin text-primary" />}
+        </div>
         
-        <Dialog open={dialogOpen} onOpenChange={(val) => {
-          setDialogOpen(val)
-          if (val) handleScan()
-        }}>
-          <DialogTrigger asChild>
-            <Button 
+        <div className="flex gap-1">
+           <Button 
               variant="ghost" 
-              size="sm" 
-              className="text-primary hover:text-primary/80 hover:bg-primary/10 font-bold"
+              size="icon" 
+              onClick={handleSyncRegistry}
+              disabled={isSyncing}
+              className="text-muted-foreground hover:text-primary h-8 w-8"
+              title={labels.refresh}
             >
-              <Plus className="w-4 h-4 mr-2" />
-              {labels.add}
+              <RefreshCw className={cn("w-4 h-4", isSyncing && "animate-spin")} />
             </Button>
-          </DialogTrigger>
-          <DialogContent className="glass border-white/10 max-w-sm mx-auto rounded-3xl">
-            <DialogHeader>
-              <DialogTitle className="font-headline font-black text-center text-primary uppercase tracking-widest text-sm">
-                {labels.discovery}
-              </DialogTitle>
-            </DialogHeader>
-            
-            <div className="space-y-4 py-4 max-h-[400px] overflow-y-auto custom-scrollbar">
-              {isScanning ? (
-                <div className="py-12 flex flex-col items-center justify-center gap-4 text-primary">
-                  <Loader2 className="w-12 h-12 animate-spin opacity-50" />
-                  <p className="font-headline font-bold text-xs animate-pulse tracking-widest">{labels.scan}</p>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-2 mb-2">
-                    {labels.found} ({DISCOVERABLE_GAMES.length})
-                  </p>
-                  {DISCOVERABLE_GAMES.map((game) => (
-                    <button
-                      key={game.packageName}
-                      onClick={() => handleAddGame(game)}
-                      className="w-full flex items-center justify-between p-3 rounded-2xl glass hover:bg-primary/5 border border-transparent hover:border-primary/20 transition-all group"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
-                          <Package className="w-5 h-5" />
+
+          <Dialog open={dialogOpen} onOpenChange={(val) => {
+            setDialogOpen(val)
+            if (val) handleScan()
+          }}>
+            <DialogTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-primary hover:text-primary/80 hover:bg-primary/10 font-bold"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                {labels.add}
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="glass border-white/10 max-w-sm mx-auto rounded-3xl">
+              <DialogHeader>
+                <DialogTitle className="font-headline font-black text-center text-primary uppercase tracking-widest text-sm">
+                  {labels.discovery}
+                </DialogTitle>
+              </DialogHeader>
+              
+              <div className="space-y-4 py-4 max-h-[400px] overflow-y-auto custom-scrollbar">
+                {isScanning ? (
+                  <div className="py-12 flex flex-col items-center justify-center gap-4 text-primary">
+                    <Loader2 className="w-12 h-12 animate-spin opacity-50" />
+                    <p className="font-headline font-bold text-xs animate-pulse tracking-widest">{labels.scan}</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-2 mb-2">
+                      {labels.found} ({DISCOVERABLE_GAMES.length})
+                    </p>
+                    {DISCOVERABLE_GAMES.map((game) => (
+                      <button
+                        key={game.packageName}
+                        onClick={() => handleAddGame(game)}
+                        className="w-full flex items-center justify-between p-3 rounded-2xl glass hover:bg-primary/5 border border-transparent hover:border-primary/20 transition-all group"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                            <Package className="w-5 h-5" />
+                          </div>
+                          <div className="text-left rtl:text-right">
+                            <p className="text-xs font-bold">{game.name}</p>
+                            <p className="text-[9px] text-muted-foreground font-mono">{game.packageName}</p>
+                          </div>
                         </div>
-                        <div className="text-left rtl:text-right">
-                          <p className="text-xs font-bold">{game.name}</p>
-                          <p className="text-[9px] text-muted-foreground font-mono">{game.packageName}</p>
-                        </div>
-                      </div>
-                      <Plus className="w-4 h-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </DialogContent>
-        </Dialog>
+                        <Plus className="w-4 h-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       {games.length === 0 ? (
@@ -170,7 +204,10 @@ export function GameLauncher({ labels }: GameLauncherProps) {
                   variant="destructive" 
                   size="icon" 
                   className="w-8 h-8 rounded-xl bg-red-500/20 text-red-500 border border-red-500/30 hover:bg-red-500 hover:text-white"
-                  onClick={() => removeGame(game.id)}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    removeGame(game.id)
+                  }}
                 >
                   <Trash2 className="w-4 h-4" />
                 </Button>
