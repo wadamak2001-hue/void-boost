@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from "react"
@@ -39,7 +38,11 @@ export const DICTIONARY = {
     brightness: "Brightness",
     dnd: "DND Mode",
     screenshot: "Screenshot",
-    record: "Screen Record"
+    record: "Screen Record",
+    scan: "SCANNING SYSTEM...",
+    found: "PACKAGES FOUND",
+    launch: "LAUNCH",
+    discovery: "App Discovery"
   },
   ar: {
     brand: "فويد بوست",
@@ -67,7 +70,11 @@ export const DICTIONARY = {
     brightness: "السطوع",
     dnd: "وضع الهدوء",
     screenshot: "لقطة شاشة",
-    record: "تسجيل الشاشة"
+    record: "تسجيل الشاشة",
+    scan: "جاري فحص النظام...",
+    found: "تم العثور على حزم",
+    launch: "تشغيل",
+    discovery: "اكتشاف التطبيقات"
   }
 }
 
