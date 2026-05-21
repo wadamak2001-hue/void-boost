@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from "react"
@@ -11,7 +12,7 @@ export interface HardwareStats {
   isCharging: boolean
 }
 
-export function useHardwareStats() {
+export function useHardwareStats(hasPermission: boolean) {
   const [stats, setStats] = useState<HardwareStats>({
     fps: "---",
     temp: "Locked",
@@ -22,6 +23,18 @@ export function useHardwareStats() {
   })
 
   useEffect(() => {
+    if (!hasPermission) {
+      setStats({
+        fps: "---",
+        temp: "Locked",
+        ramUsed: "---",
+        ramTotal: "---",
+        battery: "---",
+        isCharging: false,
+      })
+      return
+    }
+
     let frames = 0
     let lastTime = performance.now()
     let rafId: number
@@ -54,7 +67,7 @@ export function useHardwareStats() {
           battery.addEventListener("chargingchange", batteryUpdate)
           batteryUpdate()
         } catch (e) {
-          console.error("Battery API access denied")
+          // Silent catch for battery API
         }
       }
     }
@@ -78,7 +91,7 @@ export function useHardwareStats() {
       cancelAnimationFrame(rafId)
       clearInterval(memInterval)
     }
-  }, [])
+  }, [hasPermission])
 
   return stats
 }

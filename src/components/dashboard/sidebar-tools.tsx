@@ -1,24 +1,33 @@
+
 "use client"
 
 import { useState } from "react"
 import { 
   Sun, BellOff, Camera, Video, 
   Settings, Cpu, Monitor, Lock,
-  ChevronLeft
+  ChevronLeft, Globe, ShieldCheck
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
+import { type Language } from "@/app/page"
 
 const TOOLS = [
   { icon: <Sun className="w-5 h-5" />, label: "Brightness" },
   { icon: <BellOff className="w-5 h-5" />, label: "DND" },
   { icon: <Camera className="w-5 h-5" />, label: "Screenshot" },
   { icon: <Video className="w-5 h-5" />, label: "Record" },
-  { icon: <Cpu className="w-5 h-5" />, label: "Boost" },
-  { icon: <Monitor className="w-5 h-5" />, label: "FPS Lock" },
-  { icon: <Lock className="w-5 h-5" />, label: "Lock Touch" },
 ]
 
-export function SidebarTools() {
+interface SidebarToolsProps {
+  lang: Language
+  setLang: (l: Language) => void
+  hasPermission: boolean
+  setHasPermission: (v: boolean) => void
+  labels: any
+}
+
+export function SidebarTools({ lang, setLang, hasPermission, setHasPermission, labels }: SidebarToolsProps) {
   const [isOpen, setIsOpen] = useState(false)
 
   return (
@@ -39,8 +48,34 @@ export function SidebarTools() {
       <div className="w-72 glass rounded-l-2xl p-6 border-r-0 h-[600px] overflow-y-auto custom-scrollbar">
         <div className="space-y-8">
           <div className="space-y-2">
-            <h3 className="font-headline text-sm font-black text-primary tracking-widest uppercase">Gaming Tools</h3>
-            <p className="text-xs text-muted-foreground">Optimize your experience</p>
+            <h3 className="font-headline text-sm font-black text-primary tracking-widest uppercase">{labels.tools}</h3>
+            <p className="text-xs text-muted-foreground">{labels.toolsDesc}</p>
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex items-center justify-between p-4 rounded-xl glass">
+              <div className="flex items-center gap-3">
+                <Globe className="w-5 h-5 text-primary" />
+                <span className="text-xs font-bold">{labels.lang}</span>
+              </div>
+              <button 
+                onClick={() => setLang(lang === 'en' ? 'ar' : 'en')}
+                className="text-[10px] font-black uppercase text-primary bg-primary/10 px-3 py-1.5 rounded-lg border border-primary/20"
+              >
+                {lang === 'en' ? 'ARABIC' : 'ENGLISH'}
+              </button>
+            </div>
+
+            <div className="flex items-center justify-between p-4 rounded-xl glass">
+              <div className="flex items-center gap-3">
+                <ShieldCheck className="w-5 h-5 text-secondary" />
+                <span className="text-xs font-bold">{labels.sysAccess}</span>
+              </div>
+              <Switch 
+                checked={hasPermission} 
+                onCheckedChange={setHasPermission}
+              />
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -57,16 +92,6 @@ export function SidebarTools() {
                 </span>
               </button>
             ))}
-          </div>
-
-          <div className="p-4 rounded-xl bg-primary/5 border border-primary/20 space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-xs font-bold">Performance</span>
-              <span className="text-[10px] text-primary px-2 py-0.5 rounded-full bg-primary/20">TURBO</span>
-            </div>
-            <div className="h-1 bg-muted rounded-full overflow-hidden">
-              <div className="h-full bg-primary w-4/5 animate-pulse"></div>
-            </div>
           </div>
         </div>
       </div>

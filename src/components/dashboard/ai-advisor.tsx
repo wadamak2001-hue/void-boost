@@ -1,22 +1,29 @@
+
 "use client"
 
 import { useState } from "react"
-import { BrainCircuit, Loader2, CheckCircle2 } from "lucide-react"
+import { BrainCircuit, Loader2, CheckCircle2, Lock } from "lucide-react"
 import { aiOptimizedGamingProfile, type AIOptimizedGamingProfileOutput } from "@/ai/flows/ai-optimized-gaming-profile"
 import { Button } from "@/components/ui/button"
 import { useHardwareStats } from "@/hooks/use-hardware-stats"
 
-export function AIAdvisor() {
+interface AIAdvisorProps {
+  labels: any
+  hasPermission: boolean
+}
+
+export function AIAdvisor({ labels, hasPermission }: AIAdvisorProps) {
   const [loading, setLoading] = useState(false)
   const [profile, setProfile] = useState<AIOptimizedGamingProfileOutput | null>(null)
-  const stats = useHardwareStats()
+  const stats = useHardwareStats(hasPermission)
 
   const analyze = async () => {
+    if (!hasPermission) return
     setLoading(true)
     try {
       const result = await aiOptimizedGamingProfile({
-        gameName: "PUBG Mobile",
-        gameGenre: "Battle Royale",
+        gameName: "Dynamic Session",
+        gameGenre: "Active Process",
         cpuUsagePercent: typeof stats.fps === 'number' ? Math.min(100, (stats.fps / 60) * 80) : 50,
         ramUsageMB: typeof stats.ramUsed === 'string' && stats.ramUsed !== '---' ? parseFloat(stats.ramUsed) * 1024 : 2048,
         totalRamMB: typeof stats.ramTotal === 'string' && stats.ramTotal !== '---' ? parseFloat(stats.ramTotal) * 1024 : 8192,
@@ -44,8 +51,8 @@ export function AIAdvisor() {
           <BrainCircuit className="w-6 h-6" />
         </div>
         <div>
-          <h2 className="font-headline text-lg font-bold">AI GAMING MODE</h2>
-          <p className="text-xs text-muted-foreground">Smart optimization based on live status</p>
+          <h2 className="font-headline text-lg font-bold uppercase">{labels.aiMode}</h2>
+          <p className="text-xs text-muted-foreground">{labels.aiDesc}</p>
         </div>
       </div>
 
@@ -53,9 +60,16 @@ export function AIAdvisor() {
         <div className="py-4">
           <Button 
             onClick={analyze}
-            className="w-full bg-secondary hover:bg-secondary/80 text-white font-headline font-bold py-6 rounded-2xl shadow-[0_0_20px_rgba(122,92,255,0.4)]"
+            disabled={!hasPermission}
+            className="w-full bg-secondary hover:bg-secondary/80 text-white font-headline font-bold py-6 rounded-2xl shadow-[0_0_20px_rgba(122,92,255,0.4)] disabled:opacity-50 disabled:grayscale"
           >
-            START REAL-TIME ANALYSIS
+            {!hasPermission ? (
+              <span className="flex items-center gap-2">
+                <Lock className="w-4 h-4" /> ACCESS REQUIRED
+              </span>
+            ) : (
+              "START REAL-TIME ANALYSIS"
+            )}
           </Button>
         </div>
       )}

@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from "react"
@@ -5,7 +6,11 @@ import { Zap } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toast } from "@/hooks/use-toast"
 
-export function BoostButton() {
+interface BoostButtonProps {
+  labels: any
+}
+
+export function BoostButton({ labels }: BoostButtonProps) {
   const [isBoosting, setIsBoosting] = useState(false)
 
   const handleBoost = () => {
@@ -13,28 +18,24 @@ export function BoostButton() {
 
     setIsBoosting(true)
     
-    // Attempt real resource release
     if (typeof window !== "undefined") {
-      // 1. Trigger haptic feedback
       if (window.navigator.vibrate) {
         window.navigator.vibrate([50, 30, 100])
       }
       
-      // 2. Clear session storage (Purge volatile cache)
       try {
         sessionStorage.clear()
-        console.log("VOID BOOST: Volatile cache purged.")
+        localStorage.removeItem('void_temp_cache')
       } catch (e) {
-        console.warn("Storage access restricted")
+        // Silent error
       }
     }
 
-    // Simulate system reconfiguration delay
     setTimeout(() => {
       setIsBoosting(false)
       toast({
-        title: "SYSTEM OPTIMIZED",
-        description: "Idle threads suspended. Memory cleared.",
+        title: labels.optimized,
+        description: labels.optimizedDesc,
         className: "bg-primary text-primary-foreground border-none font-headline font-bold",
       })
     }, 2000)
@@ -71,7 +72,7 @@ export function BoostButton() {
           "font-headline text-2xl font-black tracking-tighter transition-all",
           isBoosting ? "opacity-0 translate-y-2" : "opacity-100 translate-y-0"
         )}>
-          {isBoosting ? "PURGING..." : "BOOST"}
+          {isBoosting ? labels.purging : labels.boost}
         </span>
         
         {isBoosting && (
