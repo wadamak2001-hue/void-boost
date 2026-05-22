@@ -74,7 +74,7 @@ export function AppOpenAd({ onClose }: AppOpenAdProps) {
           <img 
             src="https://picsum.photos/seed/voidad/600/800" 
             alt="Void Shield Pro" 
-            className="absolute inset-0 object-cover opacity-30 group-hover:scale-105 transition-transform duration-[2000ms]"
+            className="absolute inset-0 object-cover opacity-30 group-hover:scale-105 transition-transform [transition-duration:2000ms]"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent"></div>
           
