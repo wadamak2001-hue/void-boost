@@ -1,7 +1,6 @@
-
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useTransition } from "react"
 import { BoostButton } from "@/components/dashboard/boost-button"
 import { DeviceMonitor } from "@/components/dashboard/device-monitor"
 import { GameLauncher } from "@/components/game/game-launcher"
@@ -10,7 +9,7 @@ import { SidebarTools } from "@/components/dashboard/sidebar-tools"
 import { DebugConsole } from "@/components/dashboard/debug-console"
 import { GitHubDeployer } from "@/components/dashboard/github-deployer"
 import { AppOpenAd } from "@/components/ads/app-open-ad"
-import { Shield, User, Cpu, Globe, Cloud } from "lucide-react"
+import { Shield, User, Globe, Cloud } from "lucide-react"
 import { Toaster } from "@/components/ui/toaster"
 import { logger } from "@/hooks/use-debug-logs"
 
@@ -106,34 +105,33 @@ export default function Home() {
   const [showAd, setShowAd] = useState(true)
   const [debugVisible, setDebugVisible] = useState(false)
   const [logoTaps, setLogoTaps] = useState(0)
-  const [adConfig, setAdConfig] = useState({ appId: "", unitId: "" })
+  const [isPending, startTransition] = useTransition()
 
   useEffect(() => {
-    const savedLang = localStorage.getItem('void_boost_lang') as Language
+    // Initial sync
+    const savedLang = localStorage.getItem('void_boost_lang') as Language || 'en'
     const savedPerm = localStorage.getItem('void_boost_perm') === 'true'
-    const savedAdAppId = localStorage.getItem('void_boost_ad_app_id') || ""
-    const savedAdUnitId = localStorage.getItem('void_boost_ad_unit_id') || ""
     
-    if (savedLang) setLang(savedLang)
-    if (savedPerm) setHasPermission(savedPerm)
-    setAdConfig({ appId: savedAdAppId, unitId: savedAdUnitId })
+    setLang(savedLang)
+    setHasPermission(savedPerm)
     
-    logger.add(`App Boot: Lang=${savedLang || 'en'}, AdMob Configured=${!!savedAdUnitId}`, 'info')
-    logger.add('Capacitor Native Bridge: Initializing...', 'success')
+    logger.add(`App Optimize: Startup Sync Complete (Lang: ${savedLang.toUpperCase()})`, 'success')
     setIsReady(true)
   }, [])
 
   const toggleLang = () => {
-    const newLang = lang === 'en' ? 'ar' : 'en'
-    setLang(newLang)
-    localStorage.setItem('void_boost_lang', newLang)
-    logger.add(`UI Direction Toggle: ${newLang.toUpperCase()}`, 'info')
+    startTransition(() => {
+      const newLang = lang === 'en' ? 'ar' : 'en'
+      setLang(newLang)
+      localStorage.setItem('void_boost_lang', newLang)
+      logger.add(`UI Context Switched: ${newLang.toUpperCase()}`, 'info')
+    })
   }
 
   const handlePermissionChange = (val: boolean) => {
     setHasPermission(val)
     localStorage.setItem('void_boost_perm', String(val))
-    logger.add(`System Access Update: ${val ? 'GRANTED' : 'REVOKED'}`, val ? 'success' : 'warn')
+    logger.add(`Telemetry Status: ${val ? 'LINKED' : 'LOCKED'}`, val ? 'success' : 'warn')
   }
 
   const handleLogoTap = () => {
@@ -141,7 +139,7 @@ export default function Home() {
     if (newCount >= 5) {
       setDebugVisible(true)
       setLogoTaps(0)
-      logger.add('Developer Console Unlocked via Logo Sequence', 'success')
+      logger.add('Security Bypass: Developer Console Unlocked', 'success')
     } else {
       setLogoTaps(newCount)
     }
@@ -150,24 +148,23 @@ export default function Home() {
   const scrollToDeploy = () => {
     const el = document.getElementById('cloud-deploy-section')
     if (el) el.scrollIntoView({ behavior: 'smooth' })
-    logger.add('Navigation: Scrolled to Cloud Deployer', 'info')
+  }
+
+  if (!isReady) return <div className="min-h-screen bg-[#0A0C12] flex items-center justify-center"><Shield className="w-12 h-12 text-primary animate-pulse" /></div>;
+
+  if (showAd) {
+    return <AppOpenAd onClose={() => setShowAd(false)} />
   }
 
   const t = DICTIONARY[lang]
 
-  if (!isReady) return <div className="min-h-screen bg-[#0A0C12]" />;
-
-  if (showAd) {
-    return <AppOpenAd adUnitId={adConfig.unitId} onClose={() => setShowAd(false)} />
-  }
-
   return (
     <div 
-      className={`min-h-screen max-w-md mx-auto bg-[#0A0C12] relative flex flex-col overflow-hidden pb-12 transition-all duration-300 ${lang === 'ar' ? 'rtl font-headline' : 'ltr font-body'}`} 
+      className={`min-h-screen max-w-md mx-auto bg-[#0A0C12] relative flex flex-col overflow-hidden pb-12 transition-colors duration-300 gpu-accelerated ${lang === 'ar' ? 'rtl font-headline' : 'ltr font-body'}`} 
       dir={lang === 'ar' ? 'rtl' : 'ltr'}
       suppressHydrationWarning
     >
-      <div className="absolute top-[-10%] right-[-20%] w-[100%] h-[50%] bg-primary/5 blur-[120px] rounded-full -z-10"></div>
+      <div className="absolute top-[-10%] right-[-20%] w-[100%] h-[50%] bg-primary/5 blur-[120px] rounded-full -z-10 pointer-events-none"></div>
       
       <header className="p-6 flex items-center justify-between relative z-50">
         <div 
@@ -182,10 +179,10 @@ export default function Home() {
               <h1 className="font-headline font-black text-xl leading-none" translate="no">
                 <span className="text-foreground">VOID BOOST</span>
               </h1>
-              <span className="text-[8px] bg-primary/20 text-primary px-1.5 py-0.5 rounded border border-primary/30 font-black">NATIVE</span>
+              <span className="text-[8px] bg-primary/20 text-primary px-1.5 py-0.5 rounded border border-primary/30 font-black">STABLE</span>
             </div>
-            <p className="text-[10px] text-primary font-bold tracking-widest">
-              <span>{t.status}</span>
+            <p className="text-[10px] text-primary font-bold tracking-widest uppercase">
+              {t.status}
             </p>
           </div>
         </div>
@@ -193,30 +190,30 @@ export default function Home() {
           <button 
             onClick={toggleLang}
             className="w-10 h-10 rounded-xl glass flex items-center justify-center text-primary border border-primary/20 hover:bg-primary/10 transition-all active:scale-95"
-            title="Switch Language"
+            aria-label="Toggle Language"
           >
             <Globe className="w-5 h-5" />
           </button>
           <button 
             onClick={scrollToDeploy}
             className="w-10 h-10 rounded-xl glass border-white/10 flex items-center justify-center text-muted-foreground hover:text-primary transition-all active:scale-95"
-            title="Deployment Settings"
+            aria-label="Cloud Deployment"
           >
-            <User className="w-5 h-5" />
+            <Cloud className="w-5 h-5" />
           </button>
         </div>
       </header>
 
-      <main className="flex-1 p-6 space-y-8 overflow-y-auto custom-scrollbar relative z-10">
-        <section className="animate-in fade-in duration-200">
+      <main className="flex-1 p-6 space-y-8 overflow-y-auto custom-scrollbar relative z-10 scroll-smooth">
+        <section className="animate-in fade-in duration-300">
           <DeviceMonitor hasPermission={hasPermission} setHasPermission={handlePermissionChange} labels={t} />
         </section>
 
-        <section className="animate-in fade-in zoom-in duration-200">
+        <section className="animate-in fade-in zoom-in duration-300">
           <BoostButton labels={t} />
         </section>
 
-        <section id="cloud-deploy-section" className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+        <section id="cloud-deploy-section" className="animate-in fade-in slide-in-from-bottom-4 duration-500 gpu-accelerated">
           <div className="glass p-6 rounded-3xl border-primary/20 bg-primary/5">
              <div className="flex items-center gap-3 mb-4">
                <div className="p-2.5 rounded-xl bg-primary/20 text-primary">
@@ -231,20 +228,20 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="animate-in fade-in slide-in-from-bottom-2 duration-200">
+        <section className="animate-in fade-in slide-in-from-bottom-2 duration-300">
           <AIAdvisor labels={t} hasPermission={hasPermission} />
         </section>
 
-        <section className="animate-in fade-in slide-in-from-bottom-2 duration-200">
+        <section className="animate-in fade-in slide-in-from-bottom-2 duration-300">
           <GameLauncher labels={t} />
         </section>
       </main>
 
-      <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-[340px] glass h-16 rounded-3xl flex items-center justify-around px-4 border-white/5 z-40">
-        <button className="p-2 rounded-xl text-primary bg-primary/10">
+      <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-[340px] glass h-16 rounded-3xl flex items-center justify-around px-4 border-white/5 z-40 shadow-2xl">
+        <button className="p-2 rounded-xl text-primary bg-primary/10 transition-transform active:scale-110">
           <Shield className="w-6 h-6" />
         </button>
-        <button onClick={scrollToDeploy} className="p-2 rounded-xl text-muted-foreground hover:text-primary transition-colors">
+        <button onClick={scrollToDeploy} className="p-2 rounded-xl text-muted-foreground hover:text-primary transition-all active:scale-110">
           <Cloud className="w-6 h-6" />
         </button>
       </nav>

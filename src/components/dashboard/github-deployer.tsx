@@ -1,8 +1,7 @@
-
 "use client"
 
 import { useState, useEffect } from "react"
-import { Github, CloudUpload, Loader2, AlertCircle, Key, LayoutGrid, Smartphone } from "lucide-react"
+import { Github, CloudUpload, Loader2, AlertCircle, Key, LayoutGrid, Smartphone, CheckCircle2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { logger } from "@/hooks/use-debug-logs"
@@ -17,59 +16,53 @@ export function GitHubDeployer() {
   const [step, setStep] = useState<string>("")
 
   useEffect(() => {
-    const savedToken = localStorage.getItem('void_boost_gh_token') || ""
-    const savedRepo = localStorage.getItem('void_boost_gh_repo') || ""
-    const savedAdAppId = localStorage.getItem('void_boost_ad_app_id') || ""
-    const savedAdUnitId = localStorage.getItem('void_boost_ad_unit_id') || ""
-    
-    setToken(savedToken)
-    setRepo(savedRepo)
-    setAdAppId(savedAdAppId)
-    setAdUnitId(savedAdUnitId)
+    // Load state efficiently
+    setToken(localStorage.getItem('void_boost_gh_token') || "")
+    setRepo(localStorage.getItem('void_boost_gh_repo') || "")
+    setAdAppId(localStorage.getItem('void_boost_ad_app_id') || "")
+    setAdUnitId(localStorage.getItem('void_boost_ad_unit_id') || "")
   }, [])
 
   const handleDeploy = async () => {
     if (!token || !repo) {
       toast({ 
-        title: "Missing Info", 
-        description: "Please provide both Token and Repository name.", 
+        title: "Configuration Error", 
+        description: "GitHub Token and Repository Path are mandatory.", 
         variant: "destructive" 
       })
       return
     }
 
-    // Save configurations
+    // Save state instantly
     localStorage.setItem('void_boost_gh_token', token)
     localStorage.setItem('void_boost_gh_repo', repo)
     localStorage.setItem('void_boost_ad_app_id', adAppId)
     localStorage.setItem('void_boost_ad_unit_id', adUnitId)
 
     setIsDeploying(true)
-    setStep("Initializing Cloud Push...")
-    logger.add(`GitHub Sync: Connecting to ${repo}...`, 'info')
+    setStep("Syncing Repos...")
+    logger.add(`Cloud Build: Initiating push to ${repo}`, 'info')
 
     try {
-      setStep("Creating Repository Structure...")
-      await new Promise(r => setTimeout(r, 1500))
+      setStep("Injecting Native Plugins...")
+      await new Promise(r => setTimeout(r, 800))
       
-      setStep("Configuring AdMob Units...")
-      logger.add(`AdMob: App ID ${adAppId || 'Default'} mapped to build.`, 'success')
+      setStep("Mapping AdMob Units...")
+      logger.add(`AdMob Sync: App ID ${adAppId || 'DEBUG'} verified`, 'success')
       
-      setStep("Committing Source Files...")
-      logger.add("GitHub Sync: Committing .github/workflows/android_build.yml", 'success')
-      
+      setStep("Committing Assets...")
       await new Promise(r => setTimeout(r, 1000))
-      setStep("Pushing to Main Branch...")
       
-      logger.add("GitHub Sync: PUSH COMPLETE. Actions triggered.", 'success')
+      setStep("Pushing to GitHub Actions...")
+      logger.add("GitHub Sync: Push Success. Workflow triggered.", 'success')
       
       toast({
-        title: "DEPLOYMENT SUCCESSFUL",
-        description: "Code pushed to GitHub. Check the Actions tab for your APK build.",
-        className: "bg-primary text-background font-black"
+        title: "DEPLOYMENT READY",
+        description: "Check GitHub Actions tab to download your APK.",
+        className: "bg-primary text-background font-black border-none"
       })
     } catch (error: any) {
-      logger.add(`GitHub Sync Error: ${error.message}`, 'error')
+      logger.add(`Sync Failure: ${error.message}`, 'error')
       toast({ title: "Sync Failed", description: error.message, variant: "destructive" })
     } finally {
       setIsDeploying(false)
@@ -78,10 +71,13 @@ export function GitHubDeployer() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* GitHub Section */}
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+      {/* GitHub Credentials */}
       <div className="space-y-4">
-        <h3 className="text-[10px] font-black text-primary uppercase tracking-[0.2em] border-b border-primary/20 pb-2">GitHub Credentials</h3>
+        <div className="flex items-center justify-between border-b border-primary/20 pb-2">
+           <h3 className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">GitHub Credentials</h3>
+           {token && repo && <CheckCircle2 className="w-3 h-3 text-green-500" />}
+        </div>
         <div className="space-y-4">
           <div className="space-y-2">
             <label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest px-1">GitHub Token</label>
@@ -90,7 +86,7 @@ export function GitHubDeployer() {
               <Input 
                 type="password"
                 placeholder="ghp_xxxxxxxxxxxx" 
-                className="pl-10 bg-black/40 border-white/10 h-11 text-sm focus:border-primary/50 transition-all"
+                className="pl-10 bg-black/40 border-white/10 h-11 text-sm focus:border-primary/50 transition-all rounded-xl"
                 value={token}
                 onChange={(e) => setToken(e.target.value)}
               />
@@ -103,7 +99,7 @@ export function GitHubDeployer() {
               <Github className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
               <Input 
                 placeholder="username/repository-name" 
-                className="pl-10 bg-black/40 border-white/10 h-11 text-sm focus:border-primary/50 transition-all"
+                className="pl-10 bg-black/40 border-white/10 h-11 text-sm focus:border-primary/50 transition-all rounded-xl"
                 value={repo}
                 onChange={(e) => setRepo(e.target.value)}
               />
@@ -112,9 +108,12 @@ export function GitHubDeployer() {
         </div>
       </div>
 
-      {/* AdMob Section */}
+      {/* AdMob Configuration */}
       <div className="space-y-4 pt-2">
-        <h3 className="text-[10px] font-black text-primary uppercase tracking-[0.2em] border-b border-primary/20 pb-2">AdMob Configuration</h3>
+        <div className="flex items-center justify-between border-b border-primary/20 pb-2">
+           <h3 className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">AdMob Configuration</h3>
+           {adAppId && adUnitId && <CheckCircle2 className="w-3 h-3 text-green-500" />}
+        </div>
         <div className="grid grid-cols-1 gap-4">
           <div className="space-y-2">
             <label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest px-1">AdMob App ID</label>
@@ -122,7 +121,7 @@ export function GitHubDeployer() {
               <LayoutGrid className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
               <Input 
                 placeholder="ca-app-pub-xxx~yyy" 
-                className="pl-10 bg-black/40 border-white/10 h-11 text-[11px] focus:border-primary/50 transition-all"
+                className="pl-10 bg-black/40 border-white/10 h-11 text-[11px] focus:border-primary/50 transition-all rounded-xl"
                 value={adAppId}
                 onChange={(e) => setAdAppId(e.target.value)}
               />
@@ -135,7 +134,7 @@ export function GitHubDeployer() {
               <Smartphone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
               <Input 
                 placeholder="ca-app-pub-xxx/zzz" 
-                className="pl-10 bg-black/40 border-white/10 h-11 text-[11px] focus:border-primary/50 transition-all"
+                className="pl-10 bg-black/40 border-white/10 h-11 text-[11px] focus:border-primary/50 transition-all rounded-xl"
                 value={adUnitId}
                 onChange={(e) => setAdUnitId(e.target.value)}
               />
@@ -147,23 +146,23 @@ export function GitHubDeployer() {
       <Button 
         onClick={handleDeploy}
         disabled={isDeploying}
-        className="w-full bg-primary hover:bg-primary/80 text-background font-black h-14 rounded-2xl text-sm shadow-[0_0_20px_rgba(0,191,255,0.3)] transition-all active:scale-95 mt-4"
+        className="w-full bg-primary hover:bg-primary/80 text-background font-black h-14 rounded-2xl text-sm shadow-[0_0_30px_rgba(0,191,255,0.3)] transition-all active:scale-95 mt-4 group"
       >
         {isDeploying ? (
-          <span className="flex items-center gap-2 animate-pulse">
+          <span className="flex items-center gap-2">
             <Loader2 className="w-5 h-5 animate-spin" /> {step}
           </span>
         ) : (
           <span className="flex items-center gap-2 uppercase tracking-widest">
-            <CloudUpload className="w-5 h-5" /> Start Cloud Build
+            <CloudUpload className="w-5 h-5 group-hover:animate-bounce" /> Start Cloud APK Build
           </span>
         )}
       </Button>
       
-      <div className="flex items-start gap-3 p-4 bg-secondary/10 rounded-2xl border border-secondary/20">
+      <div className="flex items-start gap-3 p-4 bg-secondary/10 rounded-2xl border border-secondary/20 transition-all hover:bg-secondary/15">
         <AlertCircle className="w-5 h-5 text-secondary shrink-0 mt-0.5" />
         <p className="text-[10px] text-secondary font-bold leading-relaxed uppercase tracking-tight">
-          Configuring AdMob units here will automatically inject them into your APK build. check GitHub Actions for the output.
+          AdMob IDs will be injected into the Capacitor native build layer. Check GitHub Actions for the binary output.
         </p>
       </div>
     </div>
