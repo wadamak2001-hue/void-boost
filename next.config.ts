@@ -5,13 +5,11 @@ const nextConfig: NextConfig = {
     images: {
         unoptimized: true,
           },
-            // هذا السطر هو الحل للمشكلة
-              experimental: {
-                  serverActions: {
-                        bodySizeLimit: '2mb',
-                            },
-                              },
-                              };
+            experimental: {
+                // نقوم بإيقافها تماماً
+                    serverActions: false, 
+                      },
+                      };
 
-                              export default nextConfig;
-                              
+                      export default nextConfig;
+                      
