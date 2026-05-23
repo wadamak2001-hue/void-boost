@@ -18,7 +18,7 @@ export function AppOpenAd({ onClose }: AppOpenAdProps) {
   const [isExiting, setIsExiting] = useState(false)
 
   useEffect(() => {
-    // Your specific AdMob IDs
+    // Specific AdMob IDs for VOID BOOST
     const adUnitId = "ca-app-pub-9369472846382804/6274136018"
     
     if (Capacitor.isNativePlatform()) {
@@ -90,7 +90,7 @@ export function AppOpenAd({ onClose }: AppOpenAdProps) {
           <img 
             src="https://picsum.photos/seed/voidsecurity/600/800" 
             alt="Void Shield Pro" 
-            className="absolute inset-0 object-cover opacity-20 group-hover:scale-105 transition-transform duration-[2000ms]"
+            className="absolute inset-0 object-cover opacity-20 group-hover:scale-105 transition-transform [transition-duration:2000ms]"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0A0C12] via-[#0A0C12]/60 to-transparent"></div>
           

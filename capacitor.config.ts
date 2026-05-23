@@ -13,8 +13,7 @@ const config: CapacitorConfig = {
       launchShowDuration: 0
     },
     AdMob: {
-      // Note: Native Android projects usually require the App ID in AndroidManifest.xml
-      // This config helps the plugin identify the environment.
+      // Required for Android Manifest injection via plugin
     }
   }
 };

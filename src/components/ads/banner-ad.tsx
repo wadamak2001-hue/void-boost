@@ -14,7 +14,7 @@ export function BannerAd() {
 
         const showBanner = async () => {
             try {
-                // Your specific Ad Unit ID
+                // Verified Ad Unit ID for VOID BOOST
                 const adUnitId = "ca-app-pub-9369472846382804/6274136018"
                 
                 const options: BannerAdOptions = {

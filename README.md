@@ -1,37 +1,35 @@
 
 # VOID BOOST | Native Android Edition
 
-This project is configured as a **Capacitor-Ready Native Android App** with an automated Cloud Build pipeline via GitHub Actions.
+This project is fully configured for a **Native Android Build** using Capacitor and GitHub Actions.
 
-## 🚀 Cloud APK Build (Mobile/Tablet Instructions)
+## 🚀 Final Push Instructions (Terminal Commands)
 
-Since you are working from a mobile device, follow these exact steps to generate your APK:
+To build your APK without a PC, run these commands in the **IDX Terminal** tab:
 
-### 1. Setup GitHub Repository
-- Create a new repository named `void-boost` on GitHub.
-- Generate a **Personal Access Token (classic)** with `repo` scope.
-
-### 2. Push Code via IDX Terminal
-Open the **Terminal** tab in your Project IDX workspace and paste these commands:
 ```bash
+# 1. Initialize Git
 git init
+
+# 2. Add Remote (Replace <TOKEN> with your GitHub token)
 git remote add origin https://<YOUR_TOKEN>@github.com/wadamak2001-hue/void-boost.git
+
+# 3. Commit Changes
 git add .
-git commit -m "Final Native Build with AdMob"
+git commit -m "Final Native Build with Live AdMob"
+
+# 4. Push to Cloud
 git branch -M main
 git push -u origin main
 ```
-*Replace `<YOUR_TOKEN>` with your GitHub token.*
 
-### 3. Download the APK
-- Once pushed, go to the **Actions** tab in your GitHub repository.
-- You will see a workflow named "Build VOID BOOST APK" running.
-- Once finished (approx. 5 minutes), click on the run.
-- Scroll to **Artifacts** and download the `VOID-BOOST-Debug-APK`.
+## 📦 How to Download your APK
+1. After pushing, go to your repository on GitHub.
+2. Click the **Actions** tab.
+3. Wait for the "Build VOID BOOST APK" workflow to finish (approx. 5 mins).
+4. Click on the completed run, scroll to **Artifacts**, and download `VOID-BOOST-Debug-APK`.
 
-## Integrated Features
-- **AdMob**: Real banner and interstitial ads integrated.
-  - App ID: `ca-app-pub-9369472846382804~2223210364`
-  - Unit ID: `ca-app-pub-9369472846382804/6274136018`
-- **VOID SHIELD**: Neural protection startup layer.
-- **Hardware Telemetry**: 60FPS real-time monitoring.
+## Configuration
+- **AdMob App ID**: `ca-app-pub-9369472846382804~2223210364`
+- **Ad Unit ID**: `ca-app-pub-9369472846382804/6274136018`
+- **Package Name**: `com.voidboost.optimizer`
