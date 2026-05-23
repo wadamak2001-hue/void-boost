@@ -1,16 +1,20 @@
+const aiOptimizedGamingProfileFlow = ai.defineFlow(
+    {
+        name: 'aiOptimizedGamingProfileFlow',
+            inputSchema: AIOptimizedGamingProfileInputSchema,
+                outputSchema: AIOptimizedGamingProfileOutputSchema,
+                  },
+                    async (input) => {
+                        const { output } = await prompt(input);
 
-/**
- *  * @fileOverview This file defines a Genkit flow for generating an AI-optimized gaming profile.
-  * It analyzes game and device data to suggest optimal performance settings, brightness, and notification controls.
-   */ * */ *  */ *
- * - aiOptimizedGamingProfile - A function that handles the AI-optimized gaming profile generation process.
- * - AIOptimizedGamingProfileInput - The input type for the aiOptimizedGamingProfile function.
- * - AIOptimizedGamingProfileOutput - The return type for the aiOptimizedGamingProfile function.
- */
+                            if (!output) {
+                                  throw new Error('Failed to generate optimized gaming profile');
+                                      }
 
-import { ai } from '@/ai/genkit';
-import { z } from 'genkit';
-
+                                          return output;
+                                            }
+                                            );
+)
 const AIOptimizedGamingProfileInputSchema = z.object({
   gameName: z.string().describe('The name of the game currently being played.'),
   gameGenre: z.string().optional().describe('The genre of the game (e.g., FPS, RPG).'),
