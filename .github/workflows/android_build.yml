@@ -29,7 +29,8 @@ jobs:
         run: npm install
 
       - name: Build Static Web Assets
-        run: npm run static
+      run: npm run build
+ 
 
       - name: Install Capacitor CLI
         run: npm install @capacitor/cli @capacitor/core @capacitor/android
