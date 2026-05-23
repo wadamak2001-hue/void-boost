@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState } from "react"
@@ -6,6 +5,8 @@ import { Zap } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toast } from "@/hooks/use-toast"
 import { logger } from "@/hooks/use-debug-logs"
+import { AdMob } from '@capacitor-community/admob'
+import { Capacitor } from '@capacitor/core'
 
 interface BoostButtonProps {
   labels: any
@@ -14,12 +15,22 @@ interface BoostButtonProps {
 export function BoostButton({ labels }: BoostButtonProps) {
   const [isBoosting, setIsBoosting] = useState(false)
 
-  const handleBoost = () => {
+  const handleBoost = async () => {
     if (isBoosting) return
 
     setIsBoosting(true)
     logger.add('Optimization Triggered: INIT PURGE SEQUENCE', 'warn')
     
+    // Trigger Interstitial Ad on Native
+    if (Capacitor.isNativePlatform()) {
+      try {
+        await AdMob.showInterstitial()
+        logger.add('AdMob: Interstitial Ad Displayed', 'success')
+      } catch (e) {
+        logger.add('AdMob: No Interstitial ready, skipping.', 'info')
+      }
+    }
+
     // Simulate Native System Haptics & Garbage Collection
     if (typeof window !== "undefined") {
       if (window.navigator.vibrate) {
@@ -28,15 +39,8 @@ export function BoostButton({ labels }: BoostButtonProps) {
       }
       
       try {
-        const memBefore = (performance as any).memory?.usedJSHeapSize || 0
         sessionStorage.clear()
         localStorage.removeItem('void_boost_temp_cache') 
-        
-        // Simulating memory heap pressure release
-        const releaseBuffer = new Array(1000).fill(null);
-        releaseBuffer.length = 0;
-        
-        const memAfter = (performance as any).memory?.usedJSHeapSize || 0
         logger.add(`Memory Purge: Session Storage Cleared. JS Heap Stabilized.`, 'success')
       } catch (e: any) {
         logger.add(`Purge Logic Failure: ${e.message}`, 'error')
@@ -49,7 +53,7 @@ export function BoostButton({ labels }: BoostButtonProps) {
       toast({
         title: labels.optimized,
         description: labels.optimizedDesc,
-        className: "bg-primary text-primary-foreground border-none font-headline font-bold",
+        className: "bg-primary text-primary-foreground border-none font-headline font-bold shadow-[0_0_20px_rgba(0,191,255,0.5)]",
       })
     }, 1200)
   }

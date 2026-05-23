@@ -10,8 +10,8 @@ import { toast } from "@/hooks/use-toast"
 export function GitHubDeployer() {
   const [token, setToken] = useState("")
   const [repo, setRepo] = useState("")
-  const [adAppId, setAdAppId] = useState("")
-  const [adUnitId, setAdUnitId] = useState("")
+  const [adAppId, setAdAppId] = useState("ca-app-pub-9369472846382804~2223210364")
+  const [adUnitId, setAdUnitId] = useState("ca-app-pub-9369472846382804/6274136018")
   const [isDeploying, setIsDeploying] = useState(false)
   const [step, setStep] = useState<string>("")
 
@@ -19,8 +19,17 @@ export function GitHubDeployer() {
     // Load state efficiently
     setToken(localStorage.getItem('void_boost_gh_token') || "")
     setRepo(localStorage.getItem('void_boost_gh_repo') || "")
-    setAdAppId(localStorage.getItem('void_boost_ad_app_id') || "")
-    setAdUnitId(localStorage.getItem('void_boost_ad_unit_id') || "")
+    
+    // Default to provided IDs if not already set by user
+    if (!localStorage.getItem('void_boost_ad_app_id')) {
+        localStorage.setItem('void_boost_ad_app_id', "ca-app-pub-9369472846382804~2223210364")
+    }
+    if (!localStorage.getItem('void_boost_ad_unit_id')) {
+        localStorage.setItem('void_boost_ad_unit_id', "ca-app-pub-9369472846382804/6274136018")
+    }
+
+    setAdAppId(localStorage.getItem('void_boost_ad_app_id') || "ca-app-pub-9369472846382804~2223210364")
+    setAdUnitId(localStorage.getItem('void_boost_ad_unit_id') || "ca-app-pub-9369472846382804/6274136018")
   }, [])
 
   const handleDeploy = async () => {
@@ -48,7 +57,7 @@ export function GitHubDeployer() {
       await new Promise(r => setTimeout(r, 800))
       
       setStep("Mapping AdMob Units...")
-      logger.add(`AdMob Sync: App ID ${adAppId || 'DEBUG'} verified`, 'success')
+      logger.add(`AdMob Sync: App ID ${adAppId} verified`, 'success')
       
       setStep("Committing Assets...")
       await new Promise(r => setTimeout(r, 1000))
@@ -162,7 +171,7 @@ export function GitHubDeployer() {
       <div className="flex items-start gap-3 p-4 bg-secondary/10 rounded-2xl border border-secondary/20 transition-all hover:bg-secondary/15">
         <AlertCircle className="w-5 h-5 text-secondary shrink-0 mt-0.5" />
         <p className="text-[10px] text-secondary font-bold leading-relaxed uppercase tracking-tight">
-          AdMob IDs will be injected into the Capacitor native build layer. Check GitHub Actions for the binary output.
+          Native build layer detected. AdMob IDs ca-app-pub-9369472846382804~2223210364 will be injected.
         </p>
       </div>
     </div>

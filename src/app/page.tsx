@@ -9,6 +9,7 @@ import { SidebarTools } from "@/components/dashboard/sidebar-tools"
 import { DebugConsole } from "@/components/dashboard/debug-console"
 import { GitHubDeployer } from "@/components/dashboard/github-deployer"
 import { AppOpenAd } from "@/components/ads/app-open-ad"
+import { BannerAd } from "@/components/ads/banner-ad"
 import { Shield, User, Globe, Cloud } from "lucide-react"
 import { Toaster } from "@/components/ui/toaster"
 import { logger } from "@/hooks/use-debug-logs"
@@ -214,7 +215,7 @@ export default function Home() {
         </section>
 
         <section id="cloud-deploy-section" className="animate-in fade-in slide-in-from-bottom-4 duration-500 gpu-accelerated">
-          <div className="glass p-6 rounded-3xl border-primary/20 bg-primary/5">
+          <div className="glass p-6 rounded-[2.5rem] border-primary/20 bg-primary/5">
              <div className="flex items-center gap-3 mb-4">
                <div className="p-2.5 rounded-xl bg-primary/20 text-primary">
                  <Cloud className="w-6 h-6" />
@@ -235,9 +236,15 @@ export default function Home() {
         <section className="animate-in fade-in slide-in-from-bottom-2 duration-300">
           <GameLauncher labels={t} />
         </section>
+
+        <div className="h-20" /> {/* Spacer for banner ad */}
       </main>
 
-      <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-[340px] glass h-16 rounded-3xl flex items-center justify-around px-4 border-white/5 z-40 shadow-2xl">
+      <div className="fixed bottom-0 left-0 right-0 z-[100]">
+        <BannerAd />
+      </div>
+
+      <nav className="fixed bottom-16 left-1/2 -translate-x-1/2 w-[90%] max-w-[340px] glass h-16 rounded-3xl flex items-center justify-around px-4 border-white/5 z-40 shadow-2xl">
         <button className="p-2 rounded-xl text-primary bg-primary/10 transition-transform active:scale-110">
           <Shield className="w-6 h-6" />
         </button>
