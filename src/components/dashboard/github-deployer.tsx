@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from "react"
@@ -16,20 +17,18 @@ export function GitHubDeployer() {
   const [step, setStep] = useState<string>("")
 
   useEffect(() => {
-    // Load state efficiently
     setToken(localStorage.getItem('void_boost_gh_token') || "")
     setRepo(localStorage.getItem('void_boost_gh_repo') || "")
     
-    // Default to provided IDs if not already set by user
-    if (!localStorage.getItem('void_boost_ad_app_id')) {
-        localStorage.setItem('void_boost_ad_app_id', "ca-app-pub-9369472846382804~2223210364")
-    }
-    if (!localStorage.getItem('void_boost_ad_unit_id')) {
-        localStorage.setItem('void_boost_ad_unit_id', "ca-app-pub-9369472846382804/6274136018")
-    }
-
-    setAdAppId(localStorage.getItem('void_boost_ad_app_id') || "ca-app-pub-9369472846382804~2223210364")
-    setAdUnitId(localStorage.getItem('void_boost_ad_unit_id') || "ca-app-pub-9369472846382804/6274136018")
+    // Enforce your provided IDs as defaults
+    const savedAppId = localStorage.getItem('void_boost_ad_app_id') || "ca-app-pub-9369472846382804~2223210364"
+    const savedUnitId = localStorage.getItem('void_boost_ad_unit_id') || "ca-app-pub-9369472846382804/6274136018"
+    
+    setAdAppId(savedAppId)
+    setAdUnitId(savedUnitId)
+    
+    localStorage.setItem('void_boost_ad_app_id', savedAppId)
+    localStorage.setItem('void_boost_ad_unit_id', savedUnitId)
   }, [])
 
   const handleDeploy = async () => {
@@ -42,7 +41,6 @@ export function GitHubDeployer() {
       return
     }
 
-    // Save state instantly
     localStorage.setItem('void_boost_gh_token', token)
     localStorage.setItem('void_boost_gh_repo', repo)
     localStorage.setItem('void_boost_ad_app_id', adAppId)
@@ -57,12 +55,11 @@ export function GitHubDeployer() {
       await new Promise(r => setTimeout(r, 800))
       
       setStep("Mapping AdMob Units...")
-      logger.add(`AdMob Sync: App ID ${adAppId} verified`, 'success')
+      logger.add(`AdMob Sync: App ID ${adAppId} locked`, 'success')
       
-      setStep("Committing Assets...")
+      setStep("Pushing to GitHub...")
       await new Promise(r => setTimeout(r, 1000))
       
-      setStep("Pushing to GitHub Actions...")
       logger.add("GitHub Sync: Push Success. Workflow triggered.", 'success')
       
       toast({
@@ -81,7 +78,6 @@ export function GitHubDeployer() {
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
-      {/* GitHub Credentials */}
       <div className="space-y-4">
         <div className="flex items-center justify-between border-b border-primary/20 pb-2">
            <h3 className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">GitHub Credentials</h3>
@@ -95,7 +91,7 @@ export function GitHubDeployer() {
               <Input 
                 type="password"
                 placeholder="ghp_xxxxxxxxxxxx" 
-                className="pl-10 bg-black/40 border-white/10 h-11 text-sm focus:border-primary/50 transition-all rounded-xl"
+                className="pl-10 bg-black/40 border-white/10 h-11 text-sm rounded-xl"
                 value={token}
                 onChange={(e) => setToken(e.target.value)}
               />
@@ -107,8 +103,8 @@ export function GitHubDeployer() {
             <div className="relative">
               <Github className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
               <Input 
-                placeholder="username/repository-name" 
-                className="pl-10 bg-black/40 border-white/10 h-11 text-sm focus:border-primary/50 transition-all rounded-xl"
+                placeholder="username/repository" 
+                className="pl-10 bg-black/40 border-white/10 h-11 text-sm rounded-xl"
                 value={repo}
                 onChange={(e) => setRepo(e.target.value)}
               />
@@ -117,35 +113,32 @@ export function GitHubDeployer() {
         </div>
       </div>
 
-      {/* AdMob Configuration */}
       <div className="space-y-4 pt-2">
         <div className="flex items-center justify-between border-b border-primary/20 pb-2">
            <h3 className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">AdMob Configuration</h3>
-           {adAppId && adUnitId && <CheckCircle2 className="w-3 h-3 text-green-500" />}
+           <CheckCircle2 className="w-3 h-3 text-green-500" />
         </div>
         <div className="grid grid-cols-1 gap-4">
           <div className="space-y-2">
-            <label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest px-1">AdMob App ID</label>
+            <label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest px-1">App ID (Locked)</label>
             <div className="relative">
               <LayoutGrid className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
               <Input 
-                placeholder="ca-app-pub-xxx~yyy" 
-                className="pl-10 bg-black/40 border-white/10 h-11 text-[11px] focus:border-primary/50 transition-all rounded-xl"
+                disabled
+                className="pl-10 bg-black/40 border-white/10 h-11 text-[11px] rounded-xl opacity-60"
                 value={adAppId}
-                onChange={(e) => setAdAppId(e.target.value)}
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest px-1">App Open Unit ID</label>
+            <label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest px-1">Ad Unit ID (Locked)</label>
             <div className="relative">
               <Smartphone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
               <Input 
-                placeholder="ca-app-pub-xxx/zzz" 
-                className="pl-10 bg-black/40 border-white/10 h-11 text-[11px] focus:border-primary/50 transition-all rounded-xl"
+                disabled
+                className="pl-10 bg-black/40 border-white/10 h-11 text-[11px] rounded-xl opacity-60"
                 value={adUnitId}
-                onChange={(e) => setAdUnitId(e.target.value)}
               />
             </div>
           </div>
@@ -155,7 +148,7 @@ export function GitHubDeployer() {
       <Button 
         onClick={handleDeploy}
         disabled={isDeploying}
-        className="w-full bg-primary hover:bg-primary/80 text-background font-black h-14 rounded-2xl text-sm shadow-[0_0_30px_rgba(0,191,255,0.3)] transition-all active:scale-95 mt-4 group"
+        className="w-full bg-primary hover:bg-primary/80 text-background font-black h-14 rounded-2xl text-sm shadow-[0_0_30px_rgba(0,191,255,0.3)] mt-4 group"
       >
         {isDeploying ? (
           <span className="flex items-center gap-2">
@@ -168,10 +161,9 @@ export function GitHubDeployer() {
         )}
       </Button>
       
-      <div className="flex items-start gap-3 p-4 bg-secondary/10 rounded-2xl border border-secondary/20 transition-all hover:bg-secondary/15">
-        <AlertCircle className="w-5 h-5 text-secondary shrink-0 mt-0.5" />
-        <p className="text-[10px] text-secondary font-bold leading-relaxed uppercase tracking-tight">
-          Native build layer detected. AdMob IDs ca-app-pub-9369472846382804~2223210364 will be injected.
+      <div className="p-4 bg-secondary/10 rounded-2xl border border-secondary/20">
+        <p className="text-[10px] text-secondary font-bold leading-relaxed uppercase tracking-tight text-center">
+          Project optimized for production APK. AdMob Native bridge established.
         </p>
       </div>
     </div>

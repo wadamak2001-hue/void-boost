@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from "react"
@@ -27,7 +28,7 @@ export function BoostButton({ labels }: BoostButtonProps) {
         await AdMob.showInterstitial()
         logger.add('AdMob: Interstitial Ad Displayed', 'success')
       } catch (e) {
-        logger.add('AdMob: No Interstitial ready, skipping.', 'info')
+        logger.add('AdMob: Interstitial skipping or failed', 'info')
       }
     }
 

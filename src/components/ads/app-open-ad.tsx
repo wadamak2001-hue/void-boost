@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from "react"
@@ -5,7 +6,7 @@ import { X, ExternalLink, ShieldCheck, Loader2 } from "lucide-react"
 import { Progress } from "@/components/ui/progress"
 import { logger } from "@/hooks/use-debug-logs"
 import { Capacitor } from '@capacitor/core'
-import { AdMob } from '@capacitor-community/admob'
+import { AdMob, AdOptions, AdLoadInfo } from '@capacitor-community/admob'
 
 interface AppOpenAdProps {
   onClose: () => void
@@ -17,15 +18,25 @@ export function AppOpenAd({ onClose }: AppOpenAdProps) {
   const [isExiting, setIsExiting] = useState(false)
 
   useEffect(() => {
-    const savedUnitId = localStorage.getItem('void_boost_ad_unit_id') || "ca-app-pub-9369472846382804/6274136018"
-    logger.add(`AdMob: Initializing VOID SHIELD Layer [Unit: ${savedUnitId}]`, 'info')
+    const adUnitId = localStorage.getItem('void_boost_ad_unit_id') || "ca-app-pub-9369472846382804/6274136018"
     
     // Native AdMob Initialization
     if (Capacitor.isNativePlatform()) {
         AdMob.initialize({
             requestTrackingAuthorization: true,
+            testingDevices: [],
+            initializeForTesting: false,
         }).then(() => {
             logger.add('AdMob: Native Layer Initialized', 'success')
+            
+            // Prepare Interstitial for later use
+            const options: AdOptions = {
+                adId: adUnitId,
+                isTesting: false
+            }
+            AdMob.prepareInterstitial(options)
+                .then(() => logger.add('AdMob: Interstitial Buffered', 'info'))
+                .catch(() => logger.add('AdMob: Buffer Failed', 'warn'))
         })
     }
 
@@ -82,7 +93,7 @@ export function AppOpenAd({ onClose }: AppOpenAdProps) {
           <img 
             src="https://picsum.photos/seed/voidsecurity/600/800" 
             alt="Void Shield Pro" 
-            className="absolute inset-0 object-cover opacity-20 group-hover:scale-105 transition-transform [transition-duration:2000ms]"
+            className="absolute inset-0 object-cover opacity-20 group-hover:scale-105 transition-transform duration-[2000ms]"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0A0C12] via-[#0A0C12]/60 to-transparent"></div>
           
@@ -109,7 +120,7 @@ export function AppOpenAd({ onClose }: AppOpenAdProps) {
         <div className="flex justify-between items-center text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
           <span className="flex items-center gap-2">
              {!canClose ? <Loader2 className="w-3 h-3 animate-spin text-primary" /> : <ShieldCheck className="w-3 h-3 text-primary" />} 
-             {!canClose ? "SCANNIG MALWARE..." : "SYSTEM READY"}
+             {!canClose ? "SCANNING MALWARE..." : "SYSTEM READY"}
           </span>
           <span className="text-primary font-black">{Math.round(progress)}%</span>
         </div>
