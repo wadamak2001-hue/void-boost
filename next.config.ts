@@ -5,13 +5,13 @@ const nextConfig: NextConfig = {
     images: {
         unoptimized: true,
           },
-            typescript: {
-                ignoreBuildErrors: true,
-                  },
-                    eslint: {
-                        ignoreDuringBuilds: true,
-                          },
-                          };
+            // هذا السطر هو الحل للمشكلة
+              experimental: {
+                  serverActions: {
+                        bodySizeLimit: '2mb',
+                            },
+                              },
+                              };
 
-                          export default nextConfig;
-                          
+                              export default nextConfig;
+                              
