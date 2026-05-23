@@ -14,7 +14,8 @@ export function BannerAd() {
 
         const showBanner = async () => {
             try {
-                const adUnitId = localStorage.getItem('void_boost_ad_unit_id') || "ca-app-pub-9369472846382804/6274136018"
+                // Your specific Ad Unit ID
+                const adUnitId = "ca-app-pub-9369472846382804/6274136018"
                 
                 const options: BannerAdOptions = {
                     adId: adUnitId,

@@ -6,7 +6,7 @@ import { X, ExternalLink, ShieldCheck, Loader2 } from "lucide-react"
 import { Progress } from "@/components/ui/progress"
 import { logger } from "@/hooks/use-debug-logs"
 import { Capacitor } from '@capacitor/core'
-import { AdMob, AdOptions, AdLoadInfo } from '@capacitor-community/admob'
+import { AdMob, AdOptions } from '@capacitor-community/admob'
 
 interface AppOpenAdProps {
   onClose: () => void
@@ -18,18 +18,15 @@ export function AppOpenAd({ onClose }: AppOpenAdProps) {
   const [isExiting, setIsExiting] = useState(false)
 
   useEffect(() => {
-    const adUnitId = localStorage.getItem('void_boost_ad_unit_id') || "ca-app-pub-9369472846382804/6274136018"
+    // Your specific AdMob IDs
+    const adUnitId = "ca-app-pub-9369472846382804/6274136018"
     
-    // Native AdMob Initialization
     if (Capacitor.isNativePlatform()) {
         AdMob.initialize({
             requestTrackingAuthorization: true,
-            testingDevices: [],
-            initializeForTesting: false,
         }).then(() => {
             logger.add('AdMob: Native Layer Initialized', 'success')
             
-            // Prepare Interstitial for later use
             const options: AdOptions = {
                 adId: adUnitId,
                 isTesting: false
