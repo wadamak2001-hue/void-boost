@@ -1,8 +1,8 @@
-'use server';
+
 /**
- * @fileOverview This file defines a Genkit flow for generating an AI-optimized gaming profile.
- * It analyzes game and device data to suggest optimal performance settings, brightness, and notification controls.
- *
+ *  * @fileOverview This file defines a Genkit flow for generating an AI-optimized gaming profile.
+  * It analyzes game and device data to suggest optimal performance settings, brightness, and notification controls.
+   */ * */ *  */ *
  * - aiOptimizedGamingProfile - A function that handles the AI-optimized gaming profile generation process.
  * - AIOptimizedGamingProfileInput - The input type for the aiOptimizedGamingProfile function.
  * - AIOptimizedGamingProfileOutput - The return type for the aiOptimizedGamingProfile function.
