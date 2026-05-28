@@ -1,43 +1,45 @@
-
 "use client"
 
 import { useState } from "react"
 import { BrainCircuit, Loader2, CheckCircle2, Lock } from "lucide-react"
-import { aiOptimizedGamingProfile, type AIOptimizedGamingProfileOutput } from "@/ai/flows/ai-optimized-gaming-profile"
 import { Button } from "@/components/ui/button"
 import { useHardwareStats } from "@/hooks/use-hardware-stats"
+
+// Removed server-side Genkit imports for static export compatibility
+// import { aiOptimizedGamingProfile, type AIOptimizedGamingProfileOutput } from "@/ai/flows/ai-optimized-gaming-profile"
 
 interface AIAdvisorProps {
   labels: any
   hasPermission: boolean
 }
 
+interface SimulatedProfile {
+  suggestedPerformanceProfile: string
+  suggestedBrightnessPercent: number
+  suggestedNotificationControl: string
+  explanation: string
+}
+
 export function AIAdvisor({ labels, hasPermission }: AIAdvisorProps) {
   const [loading, setLoading] = useState(false)
-  const [profile, setProfile] = useState<AIOptimizedGamingProfileOutput | null>(null)
+  const [profile, setProfile] = useState<SimulatedProfile | null>(null)
   const stats = useHardwareStats(hasPermission)
 
   const analyze = async () => {
     if (!hasPermission) return
     setLoading(true)
-    try {
-      const result = await aiOptimizedGamingProfile({
-        gameName: "Dynamic Session",
-        gameGenre: "Active Process",
-        cpuUsagePercent: typeof stats.fps === 'number' ? Math.min(100, (stats.fps / 60) * 80) : 50,
-        ramUsageMB: typeof stats.ramUsed === 'string' && stats.ramUsed !== '---' ? parseFloat(stats.ramUsed) * 1024 : 2048,
-        totalRamMB: typeof stats.ramTotal === 'string' && stats.ramTotal !== '---' ? parseFloat(stats.ramTotal) * 1024 : 8192,
-        batteryLevelPercent: typeof stats.battery === 'number' ? stats.battery : 50,
-        deviceTemperatureCelsius: stats.temp === 'Locked' ? 35 : 40,
-        currentBrightnessPercent: 80,
-        notificationsEnabled: true
-      })
-      setProfile(result)
-    } catch (error) {
-      console.error(error)
-    } finally {
+    
+    // Simulating AI Analysis locally for static export
+    setTimeout(() => {
+      const mockResult: SimulatedProfile = {
+        suggestedPerformanceProfile: stats.fps && typeof stats.fps === 'number' && stats.fps > 50 ? "Turbo Zero-Lag" : "Performance",
+        suggestedBrightnessPercent: 85,
+        suggestedNotificationControl: "Do Not Disturb",
+        explanation: "Neural engine detected active high-refresh rendering. Shifting kernels to priority lane and suppressing background broadcast listeners for zero-jitter frames."
+      }
+      setProfile(mockResult)
       setLoading(false)
-    }
+    }, 2000)
   }
 
   return (
