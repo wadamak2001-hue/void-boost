@@ -3,11 +3,12 @@ buildscript {
         google()
         mavenCentral()
     }
-    dependencies {
-        // خفضنا الإصدار ليكون أكثر استقراراً مع المكتبات الموجودة لديك
-        classpath 'com.android.tools.build:gradle:8.1.1' 
-        classpath 'com.google.gms:google-services:4.4.2'
-    }
+   dependencies {
+    // استخدمنا الإصدار 8.2.0 وهو مدعوم عالمياً
+    classpath 'com.android.tools.build:gradle:8.2.0'
+    classpath 'com.google.gms:google-services:4.4.2'
+}
+ 
 }
 
 allprojects {
