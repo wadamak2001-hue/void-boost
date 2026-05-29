@@ -18,6 +18,7 @@ jobs:
       - run: npm install
       - run: npm run build
       - run: npx cap sync
+      - run: mkdir -p android/app/libs
       - name: Build Android
         run: |
           cd android
