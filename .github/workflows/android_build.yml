@@ -17,10 +17,10 @@ jobs:
           java-version: '17'
       - run: npm install
       - run: npm run build
+      - run: npx cap add android
       - run: npx cap sync
-      - run: mkdir -p android/app/libs
       - name: Build Android
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug --stacktrace --info
+          ./gradlew clean assembleDebug
