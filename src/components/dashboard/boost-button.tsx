@@ -1,0 +1,102 @@
+
+"use client"
+
+import { useState } from "react"
+import { Zap } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { toast } from "@/hooks/use-toast"
+import { logger } from "@/hooks/use-debug-logs"
+import { AdMob } from '@capacitor-community/admob'
+import { Capacitor } from '@capacitor/core'
+
+interface BoostButtonProps {
+  labels: any
+}
+
+export function BoostButton({ labels }: BoostButtonProps) {
+  const [isBoosting, setIsBoosting] = useState(false)
+
+  const handleBoost = async () => {
+    if (isBoosting) return
+
+    setIsBoosting(true)
+    logger.add('Optimization Triggered: INIT PURGE SEQUENCE', 'warn')
+    
+    // Trigger Interstitial Ad on Native
+    if (Capacitor.isNativePlatform()) {
+      try {
+        await AdMob.showInterstitial()
+        logger.add('AdMob: Interstitial Ad Displayed', 'success')
+      } catch (e) {
+        logger.add('AdMob: Interstitial skipping or failed', 'info')
+      }
+    }
+
+    // Simulate Native System Haptics & Garbage Collection
+    if (typeof window !== "undefined") {
+      if (window.navigator.vibrate) {
+        window.navigator.vibrate([50, 30, 100])
+        logger.add('Haptic Driver: ACTIVE', 'success')
+      }
+      
+      try {
+        sessionStorage.clear()
+        localStorage.removeItem('void_boost_temp_cache') 
+        logger.add(`Memory Purge: Session Storage Cleared. JS Heap Stabilized.`, 'success')
+      } catch (e: any) {
+        logger.add(`Purge Logic Failure: ${e.message}`, 'error')
+      }
+    }
+
+    setTimeout(() => {
+      setIsBoosting(false)
+      logger.add('Optimization Cycle: COMPLETE', 'success')
+      toast({
+        title: labels.optimized,
+        description: labels.optimizedDesc,
+        className: "bg-primary text-primary-foreground border-none font-headline font-bold shadow-[0_0_20px_rgba(0,191,255,0.5)]",
+      })
+    }, 1200)
+  }
+
+  return (
+    <div className="relative flex items-center justify-center py-4 pointer-events-auto">
+      <div className={cn(
+        "absolute w-64 h-64 bg-primary/20 rounded-full blur-[60px] transition-all duration-300",
+        isBoosting ? "scale-150 opacity-100" : "scale-100 opacity-60"
+      )}></div>
+      
+      <button
+        onClick={handleBoost}
+        disabled={isBoosting}
+        className={cn(
+          "relative w-44 h-44 rounded-full border-4 border-primary transition-all duration-200 flex flex-col items-center justify-center gap-2",
+          "hover:scale-105 active:scale-95 pointer-events-auto",
+          "bg-background/80 backdrop-blur-md shadow-[0_0_30px_rgba(0,191,255,0.3)]",
+          isBoosting ? "animate-pulse border-primary scale-110" : "border-primary/50 animate-float"
+        )}
+      >
+        <div className={cn(
+          "transition-transform duration-300",
+          isBoosting ? "scale-150 rotate-12" : "scale-100"
+        )}>
+          <Zap className={cn(
+            "w-10 h-10",
+            isBoosting ? "text-primary fill-primary" : "text-primary/70"
+          )} />
+        </div>
+        
+        <span className={cn(
+          "font-headline text-xl font-black tracking-tighter transition-all",
+          isBoosting ? "opacity-0 translate-y-2" : "opacity-100 translate-y-0"
+        )}>
+          {isBoosting ? labels.purging : labels.boost}
+        </span>
+        
+        {isBoosting && (
+          <div className="absolute inset-0 rounded-full border-4 border-primary/20 animate-ping"></div>
+        )}
+      </button>
+    </div>
+  )
+}

@@ -1,0 +1,109 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 225 30% 4%;
+  --foreground: 0 0% 95%;
+  --card: 225 30% 6%;
+  --card-foreground: 0 0% 95%;
+  --popover: 225 30% 6%;
+  --popover-foreground: 0 0% 95%;
+  --primary: 195 100% 50%;
+  --primary-foreground: 225 30% 4%;
+  --secondary: 251 100% 68%;
+  --secondary-foreground: 0 0% 95%;
+  --muted: 225 20% 12%;
+  --muted-foreground: 225 10% 65%;
+  --accent: 195 100% 50%;
+  --accent-foreground: 225 30% 4%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 225 20% 15%;
+  --input: 225 20% 15%;
+  --ring: 195 100% 50%;
+  --radius: 1rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground selection:bg-primary/30 antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-card/40 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)];
+    will-change: transform, opacity;
+  }
+  
+  .neon-glow {
+    @apply shadow-[0_0_20px_rgba(0,191,255,0.4)];
+  }
+  
+  .neon-text {
+    text-shadow: 0 0 10px rgba(0, 191, 255, 0.5);
+  }
+
+  .neon-border {
+    @apply border border-primary/50 shadow-[0_0_15px_rgba(0,191,255,0.2)];
+  }
+
+  .gpu-accelerated {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(0, 191, 255, 0.3);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(0, 191, 255, 0.6);
+    transform: scale(1.02);
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-primary/20 rounded-full hover:bg-primary/40 transition-colors;
+}
+
+.interactive-now {
+  pointer-events: auto !important;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Optimize long lists */
+.virtual-scroll-item {
+  contain: content;
+}
