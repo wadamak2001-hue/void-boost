@@ -18,15 +18,10 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
       
-      - name: Set up Java Environment
-        run: echo "org.gradle.java.home=$JAVA_HOME" >> android/gradle.properties
-
-      - run: npm install
-      - run: npm run build
-      - run: npx cap sync
       - name: Build Android
         run: |
           cd android
           chmod +x gradlew
+          export JAVA_HOME=$JAVA_HOME_17_X64
           ./gradlew clean
           ./gradlew assembleDebug
