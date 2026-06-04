@@ -17,6 +17,11 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
+      
+      # هذه الخطوة مهمة جداً لفرض إصدار الجافا الصحيح على Gradle
+      - name: Set up Java Environment
+        run: echo "org.gradle.java.home=$JAVA_HOME" >> android/gradle.properties
+
       - run: npm install
       - run: npm run build
       - run: npx cap sync
@@ -26,3 +31,4 @@ jobs:
           chmod +x gradlew
           ./gradlew clean
           ./gradlew assembleDebug
+
