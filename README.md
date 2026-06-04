@@ -3,10 +3,10 @@
 
 This project is optimized for a static Next.js export and a native Capacitor build.
 
-## One-Click Git Push (Run this in IDX Terminal)
-Copy and paste this single command to fix the upstream tracking and push all changes:
+## 🚀 RESOLVE GIT CONFLICTS & PUSH (Run in IDX Terminal)
+If you get a "rejected" or "fetch first" error, use this command to force sync your local code to GitHub:
 ```bash
-git init && git remote add origin https://github.com/wadamak2001-hue/void-boost.git || git remote set-url origin https://github.com/wadamak2001-hue/void-boost.git && git add . && git commit -m "Final Production Build" && git branch -M main && git push -u origin main
+git init && git remote add origin https://github.com/wadamak2001-hue/void-boost.git || git remote set-url origin https://github.com/wadamak2001-hue/void-boost.git && git add . && git commit -m "Final Production Build" && git branch -M main && git push -u origin main --force
 ```
 
 ## Build Instructions (Mobile/Cloud)
