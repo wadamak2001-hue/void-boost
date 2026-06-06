@@ -20,20 +20,8 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
           
-      - name: Install dependencies
-        run: npm install
-        
-      - name: Build web assets
-        run: npm run build
-        
-      - name: Capacitor Sync
-        run: |
-          npx cap add android || true
-          npx cap sync
-          
-      - name: Build Android APK
+      - name: Build Android
         run: |
           cd android
           chmod +x gradlew
           ./gradlew clean assembleDebug
-
