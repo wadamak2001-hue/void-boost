@@ -19,9 +19,10 @@ jobs:
           java-version: '17'
       
       - name: Build Android
+        env:
+          JAVA_HOME: ${{ env.JAVA_HOME_17_X64 }}
         run: |
           cd android
           chmod +x gradlew
-          export JAVA_HOME=$JAVA_HOME_17_X64
           ./gradlew clean
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug -Dorg.gradle.java.home=$JAVA_HOME
